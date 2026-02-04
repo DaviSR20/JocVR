@@ -7,7 +7,7 @@ public class GameManager : MonoBehaviour
     [Header("Grid Settings")]
     [Range(2, 20)]
     public int gridSize = 6;
-    public GridManager gridManager;
+    public GridManagerWithBorders GridManagerWithBorders;
 
     void Awake()
     {
@@ -19,12 +19,12 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
-        gridManager.GenerateGrid(gridSize);
+        GridManagerWithBorders.GenerateGrid(gridSize);
     }
 
     public void SetGridSize(int size)
     {
         gridSize = size;
-        gridManager.GenerateGrid(gridSize);
+        GridManagerWithBorders.GenerateGrid(gridSize);
     }
 }

@@ -1,73 +1,77 @@
 using UnityEngine;
 
-public class GridManager : MonoBehaviour
+public class GridManagerWithBorders : MonoBehaviour
 {
-    public GameObject tilePrefab;
-    public float tileSize = 1f; // tamaño por defecto si no se puede calcular
+    [Header("Prefabs")]
+    public GameObject tilePrefab;        // Prefab del tile interior
+    public GameObject borderPrefab;      // Prefab de los bordes laterales
+    public GameObject cornerPrefab;      // Prefab de las esquinas
 
+    [Header("Tamaño y rotación")]
+    public float tileSize = 2f;          // Tamaño que ocupa cada tile
+    public Vector3 tileRotation = new Vector3(86.803f, -5.987f, -4.2340f);
+    public Vector3 borderRotation = new Vector3(-89.98f, 0f, 0f);
+    public Vector3 cornerRotation = new Vector3(-89.98f, 0f, 0f);
+
+    /// <summary>
+    /// Genera un grid cuadrado con bordes y esquinas centrado en el origin
+    /// </summary>
     public void GenerateGrid(int size)
     {
+        if (tilePrefab == null)
+        {
+            Debug.LogError("No se ha asignado tilePrefab");
+            return;
+        }
+
         // Limpiar grid anterior
         foreach (Transform child in transform)
             Destroy(child.gameObject);
 
-        // Intentar calcular el tamaño real del prefab
-        float realTileSize = tileSize;
-
-        // 1️⃣ Usar Renderer si existe
-        Renderer r = tilePrefab.GetComponentInChildren<Renderer>();
-        if (r != null)
-        {
-            realTileSize = Mathf.Max(r.bounds.size.x, r.bounds.size.z);
-            Debug.Log($"Tile size calculado por Renderer: {realTileSize}");
-        }
-        else
-        {
-            // 2️⃣ Usar Collider si hay
-            Collider c = tilePrefab.GetComponentInChildren<Collider>();
-            if (c != null)
-            {
-                realTileSize = Mathf.Max(c.bounds.size.x, c.bounds.size.z);
-                Debug.Log($"Tile size calculado por Collider: {realTileSize}");
-            }
-            else
-            {
-                // 3️⃣ Usar Scale del prefab
-                realTileSize = Mathf.Max(
-                    tilePrefab.transform.localScale.x,
-                    tilePrefab.transform.localScale.z
-                );
-                Debug.Log($"Tile size calculado por Scale: {realTileSize}");
-            }
-        }
-
-        float offset = (size - 1) * realTileSize / 2f;
+        float offset = (size - 1) * tileSize / 2f;
+        Debug.Log($"Generando grid {size}x{size}, tileSize: {tileSize}, offset: {offset}");
 
         for (int x = 0; x < size; x++)
         {
             for (int y = 0; y < size; y++)
             {
                 Vector3 position = new Vector3(
-                    x * realTileSize - offset,
+                    x * tileSize - offset,
                     0f,
-                    y * realTileSize - offset
+                    y * tileSize - offset
                 );
 
+                GameObject prefabToUse = tilePrefab; // default
+
+                // Detectar esquinas
+                bool esEsquina = (x == 0 && y == 0) || (x == 0 && y == size - 1) ||
+                                 (x == size - 1 && y == 0) || (x == size - 1 && y == size - 1);
+
+                // Detectar bordes (no esquinas)
+                bool esBorde = !esEsquina && (x == 0 || y == 0 || x == size - 1 || y == size - 1);
+
+                if (esEsquina && cornerPrefab != null)
+                    prefabToUse = cornerPrefab;
+                else if (esBorde && borderPrefab != null)
+                    prefabToUse = borderPrefab;
+
+                // Instanciar el prefab adecuado
                 GameObject tileGO = Instantiate(
-                    tilePrefab,
+                    prefabToUse,
                     position,
-                    Quaternion.Euler(90f, 0f, 0f), // rotación para plano
+                    Quaternion.Euler(prefabToUse == tilePrefab ? tileRotation :
+                                     prefabToUse == borderPrefab ? borderRotation :
+                                     cornerRotation),
                     transform
                 );
 
+                // Asignar ID si existe componente Tile
                 Tile tile = tileGO.GetComponent<Tile>();
                 if (tile != null)
                     tile.id = new TokenID(x + 1, y + 1);
 
-                tileGO.name = $"Tile {x + 1},{y + 1}";
-
-                // Log de depuración
-                Debug.Log($"Instanciando Tile {x+1},{y+1} en {position} con size {realTileSize}");
+                tileGO.name = $"Tile {x + 1},{y + 1} ({prefabToUse.name})";
+                Debug.Log($"Instanciado {prefabToUse.name} en {position}");
             }
         }
     }

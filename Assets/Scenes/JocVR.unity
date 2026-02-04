@@ -693,7 +693,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GridManager
   tilePrefab: {fileID: 8061972052945936709, guid: 24c59991d8dda214ab4281bdf24a68c4, type: 3}
-  tileSize: 4
+  tileSize: 2
 --- !u!4 &343157955
 Transform:
   m_ObjectHideFlags: 0
