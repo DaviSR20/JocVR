@@ -5,7 +5,7 @@ public class Tile : MonoBehaviour
     [Header("ID del token")]
     public TokenID id;
 
-    [Header("ReferÃ¨ncia al Renderer")]
+    [Header("Referencia al Renderer")]
     public Renderer childRenderer;
 
     [Header("Materials possibles")]

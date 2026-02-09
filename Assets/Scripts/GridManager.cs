@@ -1,21 +1,20 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public class GridManagerWithBorders : MonoBehaviour
 {
     [Header("Prefabs")]
-    public GameObject tilePrefab;        // Prefab del tile interior
-    public GameObject borderPrefab;      // Prefab de los bordes laterales
-    public GameObject cornerPrefab;      // Prefab de las esquinas
+    public GameObject tilePrefab;
+    public GameObject borderPrefab;
+    public GameObject cornerPrefab;
 
     [Header("Tamaño y rotación")]
-    public float tileSize = 2f;          // Tamaño que ocupa cada tile
-    public Vector3 tileRotation = new Vector3(86.803f, -5.987f, -4.2340f);
-    public Vector3 borderRotation = new Vector3(-89.98f, 0f, 0f);
-    public Vector3 cornerRotation = new Vector3(-89.98f, 0f, 0f);
+    public float tileSize = 2f;
+    private Vector3 tileRotation = new Vector3(86.803f, -5.987f, -4.2340f);
 
-    /// <summary>
-    /// Genera un grid cuadrado con bordes y esquinas centrado en el origin
-    /// </summary>
+    [Header("Ajustes de bordes")]
+    public float borderInset = 3.6f;
+
     public void GenerateGrid(int size)
     {
         if (tilePrefab == null)
@@ -28,51 +27,121 @@ public class GridManagerWithBorders : MonoBehaviour
         foreach (Transform child in transform)
             Destroy(child.gameObject);
 
-        float offset = (size - 1) * tileSize / 2f;
-        Debug.Log($"Generando grid {size}x{size}, tileSize: {tileSize}, offset: {offset}");
+        float centerIndex = (size - 1) / 2f;
+        List<GameObject> coreTiles = new List<GameObject>();
 
+        // --- 1️⃣ Instanciamos solo tiles normales ---
         for (int x = 0; x < size; x++)
         {
             for (int y = 0; y < size; y++)
             {
-                Vector3 position = new Vector3(
-                    x * tileSize - offset,
-                    0f,
-                    y * tileSize - offset
-                );
+                bool esBorde = (x == 0 || y == 0 || x == size - 1 || y == size - 1);
+                bool esEsquina = 
+                    (x == 0 && y == 0) ||
+                    (x == 0 && y == size - 1) ||
+                    (x == size - 1 && y == 0) ||
+                    (x == size - 1 && y == size - 1);
 
-                GameObject prefabToUse = tilePrefab; // default
+                if (!esBorde && !esEsquina) // solo core
+                {
+                    Vector3 position = new Vector3(
+                        (x - centerIndex) * tileSize,
+                        0f,
+                        (y - centerIndex) * tileSize
+                    );
 
-                // Detectar esquinas
-                bool esEsquina = (x == 0 && y == 0) || (x == 0 && y == size - 1) ||
-                                 (x == size - 1 && y == 0) || (x == size - 1 && y == size - 1);
+                    GameObject tileGO = Instantiate(tilePrefab, transform);
+                    tileGO.transform.localPosition = position;
+                    tileGO.transform.localRotation = Quaternion.Euler(tileRotation);
+                    tileGO.transform.localScale = Vector3.one * 1.1f;
+                    tileGO.name = $"Tile {x + 1},{y + 1} (Core)";
 
-                // Detectar bordes (no esquinas)
-                bool esBorde = !esEsquina && (x == 0 || y == 0 || x == size - 1 || y == size - 1);
-
-                if (esEsquina && cornerPrefab != null)
-                    prefabToUse = cornerPrefab;
-                else if (esBorde && borderPrefab != null)
-                    prefabToUse = borderPrefab;
-
-                // Instanciar el prefab adecuado
-                GameObject tileGO = Instantiate(
-                    prefabToUse,
-                    position,
-                    Quaternion.Euler(prefabToUse == tilePrefab ? tileRotation :
-                                     prefabToUse == borderPrefab ? borderRotation :
-                                     cornerRotation),
-                    transform
-                );
-
-                // Asignar ID si existe componente Tile
-                Tile tile = tileGO.GetComponent<Tile>();
-                if (tile != null)
-                    tile.id = new TokenID(x + 1, y + 1);
-
-                tileGO.name = $"Tile {x + 1},{y + 1} ({prefabToUse.name})";
-                Debug.Log($"Instanciado {prefabToUse.name} en {position}");
+                    coreTiles.Add(tileGO);
+                }
             }
         }
+
+        // --- 2️⃣ Centramos el core en 0,0,0 ---
+        CenterTilesCore(coreTiles);
+
+        // --- 3️⃣ Instanciamos bordes y esquinas relativos al core ---
+        for (int x = 0; x < size; x++)
+        {
+            for (int y = 0; y < size; y++)
+            {
+                bool esEsquina =
+                    (x == 0 && y == 0) ||
+                    (x == 0 && y == size - 1) ||
+                    (x == size - 1 && y == 0) ||
+                    (x == size - 1 && y == size - 1);
+
+                bool esBorde =
+                    !esEsquina &&
+                    (x == 0 || y == 0 || x == size - 1 || y == size - 1);
+
+                if (esBorde || esEsquina)
+                {
+                    Vector3 position = new Vector3(
+                        (x - centerIndex) * tileSize,
+                        0f,
+                        (y - centerIndex) * tileSize
+                    );
+
+                    GameObject prefabToUse = esEsquina && cornerPrefab != null ? cornerPrefab : borderPrefab;
+                    if(prefabToUse == null) continue;
+
+                    Vector3 rotation = tileRotation;
+
+                    // Ajustes de bordes
+                    if (esBorde && borderPrefab != null)
+                    {
+                        if (x == 0) { position.x += borderInset; rotation = new Vector3(-90, 0, 0); }
+                        else if (x == size - 1) { position.x -= borderInset; rotation = new Vector3(-90, 180, 0); }
+                        else if (y == 0) { position.z += borderInset; rotation = new Vector3(-90, 270, 0); }
+                        else if (y == size - 1) { position.z -= borderInset; rotation = new Vector3(-90, 90, 0); }
+                    }
+
+                    // Ajustes de esquinas
+                    if (esEsquina && cornerPrefab != null)
+                    {
+                        position.y += 0.63f;
+                        if (x == 0 && y == 0) rotation = new Vector3(-90, -90, 0);
+                        else if (x == size - 1 && y == 0) rotation = new Vector3(-90, 180, 0);
+                        else if (x == size - 1 && y == size - 1) rotation = new Vector3(-90, 90, 0);
+                        else if (x == 0 && y == size - 1) rotation = new Vector3(-90, 0, 0);
+                    }
+
+                    GameObject tileGO = Instantiate(prefabToUse, transform);
+                    tileGO.transform.localPosition = position;
+                    tileGO.transform.localRotation = Quaternion.Euler(rotation);
+                    tileGO.name = $"Tile {x + 1},{y + 1} ({prefabToUse.name})";
+                }
+            }
+        }
+    }
+
+    private void CenterTilesCore(List<GameObject> coreTiles)
+    {
+        if (coreTiles.Count == 0) return;
+
+        Vector3 totalCenter = Vector3.zero;
+        int count = 0;
+
+        foreach(GameObject go in coreTiles)
+        {
+            Renderer r = go.GetComponent<Renderer>();
+            if (r == null) continue;
+            totalCenter += r.bounds.center;
+            count++;
+        }
+
+        if(count == 0) return;
+
+        Vector3 averageCenter = totalCenter / count;
+        Vector3 localOffset = transform.InverseTransformPoint(averageCenter);
+        localOffset.y = 0; // solo XZ
+
+        transform.localPosition -= localOffset;
+        Debug.Log($"Grid centrada en el core: {transform.localPosition}");
     }
 }
