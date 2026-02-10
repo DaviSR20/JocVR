@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-public class GridManagerWithBorders : MonoBehaviour
+public class GridManager : MonoBehaviour
 {
     [Header("Prefabs")]
     public GameObject tilePrefab;
@@ -57,7 +57,18 @@ public class GridManagerWithBorders : MonoBehaviour
                     tileGO.name = $"Tile {x + 1},{y + 1} (Core)";
 
                     coreTiles.Add(tileGO);
+                    // 🎨 Asignar color aleatorio
+                    CubeMaterialController tileScript = tileGO.GetComponent<CubeMaterialController>();
+                    if(tileScript != null)
+                    {
+                        int r = Random.Range(0, 3);
+                        if (r == 0) tileScript.ChangeMaterial(TipusMaterial.MaterialA);
+                        else if (r == 1) tileScript.ChangeMaterial(TipusMaterial.MaterialB);
+                        else tileScript.ChangeMaterial(TipusMaterial.MaterialC);
+                    }
+
                 }
+                
             }
         }
 
@@ -115,6 +126,7 @@ public class GridManagerWithBorders : MonoBehaviour
                     tileGO.transform.localPosition = position;
                     tileGO.transform.localRotation = Quaternion.Euler(rotation);
                     tileGO.name = $"Tile {x + 1},{y + 1} ({prefabToUse.name})";
+                    
                 }
             }
         }
