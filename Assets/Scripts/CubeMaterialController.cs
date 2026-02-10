@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class Tile : MonoBehaviour
+public class CubeMaterialController : MonoBehaviour
 {
     [Header("ID del token")]
     public TokenID id;
@@ -19,9 +19,7 @@ public class Tile : MonoBehaviour
 
     private void Start()
     {
-        // Inicialitzar el color a materialA
-        colorActual = TipusMaterial.MaterialA;
-        childRenderer.material = materialA;
+        
     }
 
     // Canviar el material i actualitzar estat

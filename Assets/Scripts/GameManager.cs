@@ -1,4 +1,6 @@
 using UnityEngine;
+using TMPro;
+using System.Collections;
 
 public class GameManager : MonoBehaviour
 {
@@ -7,7 +9,10 @@ public class GameManager : MonoBehaviour
     [Header("Grid Settings")]
     [Range(2, 20)]
     public int gridSize = 6;
-    public GridManager gridManager;
+    public GridManager GridManagerWithBorders;
+
+    [Header("UI Start Message")]
+    public TextMeshProUGUI startText;
 
     void Awake()
     {
@@ -19,12 +24,32 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
-        gridManager.GenerateGrid(gridSize);
+        StartCoroutine(StartGameRoutine());
+    }
+
+    IEnumerator StartGameRoutine()
+    {
+        // Mostrar mensaje inicial
+        if(startText != null)
+        {
+            startText.gameObject.SetActive(true);
+
+            for(int i = 5; i > 0; i--)
+            {
+                startText.text = $"Colócate en el centro del espacio...\nEmpieza en {i}";
+                yield return new WaitForSeconds(1f);
+            }
+
+            startText.gameObject.SetActive(false);
+        }
+
+        // Generar grid
+        GridManagerWithBorders.GenerateGrid(gridSize);
     }
 
     public void SetGridSize(int size)
     {
         gridSize = size;
-        gridManager.GenerateGrid(gridSize);
+        GridManagerWithBorders.GenerateGrid(gridSize);
     }
 }
