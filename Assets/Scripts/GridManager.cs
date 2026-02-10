@@ -115,7 +115,7 @@ public class GridManager : MonoBehaviour
                     // Ajustes de esquinas
                     if (esEsquina && cornerPrefab != null)
                     {
-                        position.y += 0.63f;
+                        position.y += 0.64f;
                         if (x == 0 && y == 0) rotation = new Vector3(-90, -90, 0);
                         else if (x == size - 1 && y == 0) rotation = new Vector3(-90, 180, 0);
                         else if (x == size - 1 && y == size - 1) rotation = new Vector3(-90, 90, 0);
