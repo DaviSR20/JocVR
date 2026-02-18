@@ -171,7 +171,6 @@ public class GridManager : MonoBehaviour
 
         // Orientación: mirar hacia la cámara
         textObj.transform.localRotation = rotation;
-        
 
         // Crear componente TextMeshPro
         TMPro.TextMeshPro textMesh = textObj.AddComponent<TMPro.TextMeshPro>();
@@ -180,6 +179,9 @@ public class GridManager : MonoBehaviour
         textMesh.alignment = TMPro.TextAlignmentOptions.Center;
         textMesh.color = Color.black;
         textMesh.enableAutoSizing = false;
+        RectTransform rectTransform = textMesh.rectTransform;
+        rectTransform.sizeDelta = new Vector2(1f, 1f);
+
     }
 
     private void CenterTilesCore(List<GameObject> coreTiles)
