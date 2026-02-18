@@ -112,74 +112,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.018309526, y: 0.018309524, z: 0.00015113383}
   m_Center: {x: 0, y: -1.5932964e-17, z: 0.002242365}
---- !u!1 &5483253825154944248
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 7229038036268139831}
-  - component: {fileID: 8388435949339949620}
-  - component: {fileID: 2610715239985169248}
-  m_Layer: 0
-  m_Name: Trigger
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &7229038036268139831
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5483253825154944248}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.163, z: 0}
-  m_LocalScale: {x: 0.8, y: 0.2, z: 0.8}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 8590592258692128925}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!65 &8388435949339949620
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5483253825154944248}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &2610715239985169248
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5483253825154944248}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 70393b391b67e9143a3021da96aa9a9f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CubeTrigger
-  gameManager: {fileID: 0}
-  cubeController: {fileID: 0}
 --- !u!1 &6051406676780650400
 GameObject:
   m_ObjectHideFlags: 0
@@ -369,7 +301,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8590592258692128925}
-  - component: {fileID: 7977754435541492580}
+  - component: {fileID: 3726794709213974465}
   m_Layer: 0
   m_Name: token
   m_TagString: Untagged
@@ -393,10 +325,9 @@ Transform:
   - {fileID: 8180692869049146705}
   - {fileID: 2479494483039522240}
   - {fileID: 1288228244887135933}
-  - {fileID: 7229038036268139831}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &7977754435541492580
+--- !u!114 &3726794709213974465
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -405,15 +336,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 7714110243084050369}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f67558ab342b13c41a65490e300ba3f5, type: 3}
+  m_Script: {fileID: 11500000, guid: 73ad3ae9031abcf4c87c0809c5d5ae7d, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CubeMaterialController
+  m_EditorClassIdentifier: Assembly-CSharp::Tile_test
+  panelRenderer: {fileID: 5872172611789967490}
+  materialNormal: {fileID: 2100000, guid: e1f9e316fbb252144b4757673556a390, type: 2}
+  materialActivo: {fileID: 2100000, guid: 41a8713bedbd9eb4184b34db7516798a, type: 2}
   id:
     x: 0
     y: 0
-  childRenderer: {fileID: 0}
-  materialA: {fileID: 0}
-  materialB: {fileID: 0}
-  materialC: {fileID: 0}
-  estaSendoPulsat: 0
-  colorActual: 0
