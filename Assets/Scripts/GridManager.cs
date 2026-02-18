@@ -128,8 +128,58 @@ public class GridManager : MonoBehaviour
                     tileGO.name = $"Tile {x + 1},{y + 1} ({prefabToUse.name})";
                     
                 }
+                
             }
+            
         }
+        CreateSideMessages(size);
+    }
+    
+    private void CreateSideMessages(int size)
+    {
+        float centerIndex = (size - 1) / 2f;
+        float halfGrid = 0.8f;
+        float textMargin = -0.8f; // altura extra sobre el borde
+
+        // ARRIBA
+        Vector3 arribaPos = new Vector3(0, tileSize + textMargin, halfGrid + borderInset);
+        Quaternion arribaRot = Quaternion.Euler(60, 0, 0);
+        CreateSideText(arribaPos, "ARRIBA", arribaRot);
+
+        // ABAJO
+        Vector3 abajoPos = new Vector3(0, tileSize + textMargin, -halfGrid - borderInset);
+        Quaternion abajoRot = Quaternion.Euler(60, 180, 0);
+        CreateSideText(abajoPos, "ABAJO", abajoRot);
+
+        // IZQUIERDA
+        Vector3 izquierdaPos = new Vector3(-halfGrid - borderInset, tileSize + textMargin, 0);
+        Quaternion izquierdaRot = Quaternion.Euler(60, 270, 0);
+        CreateSideText(izquierdaPos, "IZQUIERDA", izquierdaRot);
+
+        // DERECHA
+        Vector3 derechaPos = new Vector3(halfGrid + borderInset, tileSize + textMargin, 0);
+        Quaternion derechaRot = Quaternion.Euler(60, 90, 0);
+        CreateSideText(derechaPos, "DERECHA", derechaRot);
+        
+    }
+
+    private void CreateSideText(Vector3 position, string text, Quaternion rotation)
+    {
+        GameObject textObj = new GameObject($"SideText_{text}");
+        textObj.transform.SetParent(transform);
+        textObj.transform.localPosition = position;
+
+        // Orientación: mirar hacia la cámara
+        textObj.transform.localRotation = rotation;
+        
+
+        // Crear componente TextMeshPro
+        TMPro.TextMeshPro textMesh = textObj.AddComponent<TMPro.TextMeshPro>();
+        textMesh.text = text;
+        textMesh.fontSize = 3;
+        textMesh.alignment = TMPro.TextAlignmentOptions.Center;
+        textMesh.color = Color.black;
+        textMesh.enableAutoSizing = false;
     }
 
     private void CenterTilesCore(List<GameObject> coreTiles)
