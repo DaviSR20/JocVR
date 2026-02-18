@@ -697,6 +697,7 @@ MonoBehaviour:
   cornerPrefab: {fileID: 321301004096501704, guid: e833ac95616a7f344865a03b94b22001, type: 3}
   tileSize: 2
   borderInset: 3.5
+  BgText: {fileID: 2100000, guid: 4f6a68f17e1318b489db994b76571d82, type: 2}
 --- !u!4 &343157955
 Transform:
   m_ObjectHideFlags: 0

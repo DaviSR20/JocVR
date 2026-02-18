@@ -10,10 +10,13 @@ public class GridManager : MonoBehaviour
 
     [Header("Tamaño y rotación")]
     public float tileSize = 2f;
-    private Vector3 tileRotation = new Vector3(86.803f, -5.987f, -4.2340f);
+    private Vector3 tileRotation = new Vector3(90f, 0f, 0f);
 
     [Header("Ajustes de bordes")]
     public float borderInset = 3.6f;
+
+    [Header("Back Ground color")]
+    public Material BgText;
 
     public void GenerateGrid(int size)
     {
@@ -137,53 +140,68 @@ public class GridManager : MonoBehaviour
     
     private void CreateSideMessages(int size)
     {
-        float centerIndex = (size - 1) / 2f;
-        float halfGrid = 0.8f;
-        float textMargin = -0.8f; // altura extra sobre el borde
+        float halfGrid = (size * tileSize) / 2f;
+        float textHeight = tileSize * 0.6f;   // altura del texto
+        float offsetFromBorder = borderInset - 5f; // separación extra
 
         // ARRIBA
-        Vector3 arribaPos = new Vector3(0, tileSize + textMargin, halfGrid + borderInset);
+        Vector3 arribaPos = new Vector3(0, textHeight, halfGrid + offsetFromBorder);
         Quaternion arribaRot = Quaternion.Euler(60, 0, 0);
         CreateSideText(arribaPos, "ARRIBA", arribaRot);
 
         // ABAJO
-        Vector3 abajoPos = new Vector3(0, tileSize + textMargin, -halfGrid - borderInset);
+        Vector3 abajoPos = new Vector3(0, textHeight, -halfGrid - offsetFromBorder);
         Quaternion abajoRot = Quaternion.Euler(60, 180, 0);
         CreateSideText(abajoPos, "ABAJO", abajoRot);
 
         // IZQUIERDA
-        Vector3 izquierdaPos = new Vector3(-halfGrid - borderInset, tileSize + textMargin, 0);
+        Vector3 izquierdaPos = new Vector3(-halfGrid - offsetFromBorder, textHeight, 0);
         Quaternion izquierdaRot = Quaternion.Euler(60, 270, 0);
         CreateSideText(izquierdaPos, "IZQUIERDA", izquierdaRot);
 
         // DERECHA
-        Vector3 derechaPos = new Vector3(halfGrid + borderInset, tileSize + textMargin, 0);
+        Vector3 derechaPos = new Vector3(halfGrid + offsetFromBorder, textHeight,0);
         Quaternion derechaRot = Quaternion.Euler(60, 90, 0);
         CreateSideText(derechaPos, "DERECHA", derechaRot);
-        
     }
-
+    
     private void CreateSideText(Vector3 position, string text, Quaternion rotation)
     {
         GameObject textObj = new GameObject($"SideText_{text}");
         textObj.transform.SetParent(transform);
         textObj.transform.localPosition = position;
-
-        // Orientación: mirar hacia la cámara
         textObj.transform.localRotation = rotation;
 
-        // Crear componente TextMeshPro
+        // ===== TEXTO =====
         TMPro.TextMeshPro textMesh = textObj.AddComponent<TMPro.TextMeshPro>();
         textMesh.text = text;
         textMesh.fontSize = 3;
         textMesh.alignment = TMPro.TextAlignmentOptions.Center;
-        textMesh.color = Color.black;
+        textMesh.color = Color.white;
         textMesh.enableAutoSizing = false;
-        RectTransform rectTransform = textMesh.rectTransform;
-        rectTransform.sizeDelta = new Vector2(2f, 1f);
+        textMesh.rectTransform.sizeDelta = new Vector2(2f, 1f);
 
+        // ===== FONDO =====
+        GameObject background = GameObject.CreatePrimitive(PrimitiveType.Quad);
+        background.name = "Background";
+        background.transform.SetParent(textObj.transform);
+
+        background.transform.localPosition = new Vector3(0, 0, 0.01f);
+        background.transform.localRotation = Quaternion.identity;
+        background.transform.localScale = new Vector3(2.2f, 1.2f, 1f);
+
+        if (BgText != null)
+        {
+            background.GetComponent<MeshRenderer>().material = BgText;
+        }
+        else
+        {
+            Debug.LogWarning("BgText no está asignado en el inspector.");
+        }
+
+        Destroy(background.GetComponent<Collider>());
     }
-
+    
     private void CenterTilesCore(List<GameObject> coreTiles)
     {
         if (coreTiles.Count == 0) return;
