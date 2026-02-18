@@ -180,7 +180,7 @@ public class GridManager : MonoBehaviour
         textMesh.color = Color.black;
         textMesh.enableAutoSizing = false;
         RectTransform rectTransform = textMesh.rectTransform;
-        rectTransform.sizeDelta = new Vector2(1f, 1f);
+        rectTransform.sizeDelta = new Vector2(2f, 1f);
 
     }
 
