@@ -302,6 +302,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8590592258692128925}
   - component: {fileID: 3726794709213974465}
+  - component: {fileID: 6263271741688477131}
   m_Layer: 0
   m_Name: token
   m_TagString: Untagged
@@ -340,8 +341,31 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Tile_test
   panelRenderer: {fileID: 5872172611789967490}
-  materialNormal: {fileID: 2100000, guid: e1f9e316fbb252144b4757673556a390, type: 2}
-  materialActivo: {fileID: 2100000, guid: 41a8713bedbd9eb4184b34db7516798a, type: 2}
+  Apagat: {fileID: 0}
+  Verd: {fileID: 0}
+  Blau: {fileID: 0}
+  Vermell: {fileID: 0}
   id:
     x: 0
     y: 0
+--- !u!65 &6263271741688477131
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7714110243084050369}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
