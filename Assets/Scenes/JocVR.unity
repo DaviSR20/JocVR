@@ -1458,7 +1458,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
   gridSize: 6
   GridManagerWithBorders: {fileID: 343157954}
-  startText: {fileID: 969834062}
+  Apagat: {fileID: 2100000, guid: fad4927d57c9e484aa53e22894bef560, type: 2}
+  AzulObjetivo: {fileID: 2100000, guid: f68aa45f604b98b44adb14e90d47d9c1, type: 2}
+  RojoBarra: {fileID: 2100000, guid: 27c1f2049b00b5d4b90f7d965f5bbd89, type: 2}
+  tiempoMovimientoBarra: 1
 --- !u!4 &1973682937
 Transform:
   m_ObjectHideFlags: 0

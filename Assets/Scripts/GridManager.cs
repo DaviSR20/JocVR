@@ -58,7 +58,13 @@ public class GridManager : MonoBehaviour
                     tileGO.transform.localRotation = Quaternion.Euler(tileRotation);
                     tileGO.transform.localScale = Vector3.one * 1.1f;
                     tileGO.name = $"Tile {x + 1},{y + 1} (Core)";
-
+                    
+                    TileController tileController = tileGO.GetComponent<TileController>();
+                    if (tileController != null)
+                    {
+                        tileController.Initialize(new TileController.TokenID(x, y));
+                    }
+                    
                     coreTiles.Add(tileGO);
                     // 🎨 Asignar color aleatorio
                     CubeMaterialController tileScript = tileGO.GetComponent<CubeMaterialController>();

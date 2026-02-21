@@ -4,7 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ba6d6c1f-b147-4175-b7a8-c6484de6c65a" name="Changes" comment="" />
+    <list default="true" id="ba6d6c1f-b147-4175-b7a8-c6484de6c65a" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/Prefab.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Prefabs/Prefab.prefab" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scenes/JocVR.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/JocVR.unity" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/GameManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/GameManager.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/GridManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/GridManager.cs" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
