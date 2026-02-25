@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class TileController : MonoBehaviour
@@ -66,7 +67,7 @@ public class TileController : MonoBehaviour
         if (!other.CompareTag("Player")) return;
         playerDentro = false;
     }
-    private void OnMouseDown()
+    public void ActivarDesdeClick()
     {
         ActivarTile();
     }

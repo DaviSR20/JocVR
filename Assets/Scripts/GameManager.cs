@@ -49,7 +49,28 @@ public class GameManager : MonoBehaviour
     {
         StartCoroutine(StartGame());
     }
+    void Update()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            DetectarClick();
+        }
+    }
+    void DetectarClick()
+    {
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        RaycastHit hit;
 
+        if (Physics.Raycast(ray, out hit))
+        {
+            TileController tile = hit.collider.GetComponent<TileController>();
+
+            if (tile != null)
+            {
+                tile.ActivarDesdeClick();
+            }
+        }
+    }
     IEnumerator StartGame()
     {
         tiles.Clear();

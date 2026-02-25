@@ -1456,7 +1456,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d7ea8effb234d8045bd8c5177f86cc02, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
-  gridSize: 6
+  gridSize: 20
   GridManagerWithBorders: {fileID: 343157954}
   Apagat: {fileID: 2100000, guid: fad4927d57c9e484aa53e22894bef560, type: 2}
   AzulObjetivo: {fileID: 2100000, guid: f68aa45f604b98b44adb14e90d47d9c1, type: 2}
