@@ -24,10 +24,11 @@ public class Tile_test : MonoBehaviour
     [SerializeField] private Renderer panelRenderer;
 
     [Header("Materiales")]
-    [SerializeField] private Material Apagat; // Ej: Apagat
-    [SerializeField] private Material Verd; // Ej: Verd
-    [SerializeField] private Material Blau; // Ej: Blau
-    [SerializeField] private Material Vermell; // Otro color adicional si quieres
+    [SerializeField] private Material Apagat;
+    [SerializeField] private Material Verd;
+    [SerializeField] private Material Blau;
+    [SerializeField] private Material Vermell;
+    [SerializeField] private Material Rosa;
 
     [Header("ID del Tile")]
     public TokenID id;
@@ -39,16 +40,13 @@ public class Tile_test : MonoBehaviour
 
     private void Start()
     {
-        // Buscar automáticamente el hijo llamado "panel"
         if (panelRenderer == null)
             panelRenderer = transform.Find("panel")?.GetComponent<Renderer>();
 
-        // Buscar GameManager
         gameManager = FindObjectOfType<GameManager>();
         if (gameManager == null)
             Debug.LogError("No se ha encontrado GameManager en la escena");
 
-        // Preguntar al GameManager qué material debe tener según el ID
         if (gameManager != null)
         {
             currentMaterial = gameManager.GetMaterialForTile(id);
@@ -63,15 +61,8 @@ public class Tile_test : MonoBehaviour
         {
             playerDentro = true;
 
-            // Notificar al GameManager que este tile ha sido pulsado
             if (gameManager != null)
-            {
                 gameManager.TilePressed(id, this);
-            }
-
-            // Cambiar visual del tile pulsado según GameManager
-            if (panelRenderer != null && currentMaterial != null)
-                panelRenderer.material = currentMaterial;
 
             Debug.Log($"Player ENTRA en Tile {id} con material {currentMaterial.name}");
         }
@@ -83,19 +74,14 @@ public class Tile_test : MonoBehaviour
         {
             playerDentro = false;
 
-            // Notificar al GameManager que ha dejado de pulsar el tile
             if (gameManager != null)
                 gameManager.TileReleased(id, this);
-
-            // Mantener material según currentMaterial asignado por GameManager
-            if (panelRenderer != null && currentMaterial != null)
-                panelRenderer.material = currentMaterial;
 
             Debug.Log($"Player SALE de Tile {id} con material {currentMaterial.name}");
         }
     }
 
-    // Método público para que GameManager pueda cambiar el material
+    // Método para que GameManager cambie el material
     public void SetMaterial(Material newMaterial)
     {
         currentMaterial = newMaterial;
@@ -103,9 +89,16 @@ public class Tile_test : MonoBehaviour
             panelRenderer.material = currentMaterial;
     }
 
-    // Método para obtener los 4 materiales si se necesitan
+    // Método para obtener el material actual
+    public Material GetMaterialActual()
+    {
+        return currentMaterial;
+    }
+
+    // Métodos para acceder a los materiales
     public Material GetApagat() => Apagat;
     public Material GetVerd() => Verd;
     public Material GetBlau() => Blau;
     public Material GetVermell() => Vermell;
+    public Material GetRosa() => Rosa;
 }

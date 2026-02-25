@@ -1,110 +1,209 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class GameManager : MonoBehaviour
 {
-    [Header("Materiales de ejemplo")]
-    public Material Apagat; // Material por defecto (tile apagado)
-    public Material Verd;   // Material para un tile activo o pulsado
-    public Material Blau;   // Material temporal para otros tiles
+    [Header("Materiales")]
+    public Material Apagat;
+    public Material Verd;
+    public Material Blau;
+    public Material Vermell;
+    public Material Rosa;
 
-    // Diccionario para guardar todos los tiles de la escena usando su ID como clave
-    private Dictionary<string, Tile_test> tiles = new Dictionary<string, Tile_test>();
+    [Header("Configuración del juego")]
+    public float tiempoLimite = 60f;     // Editable en Inspector
+    public float velocidadJuego = 1f;    // Editable en Inspector
+
+    [Header("UI")]
+    public TextMeshProUGUI textoPuntuacion; // Arrastrar texto puntuación
+    public TextMeshProUGUI textoTiempo;     // Arrastrar texto tiempo
+
+    [Header("Estado del juego")]
+    public int puntuacion = 0;
+    public float tiempoRestante;
+
+    private bool juegoActivo = true;
+
+    private Dictionary<string, Tile_test> tiles =
+        new Dictionary<string, Tile_test>();
+
 
     private void Start()
     {
-        // 1 Buscar todos los tiles de la escena
+        tiempoRestante = tiempoLimite;
+
         Tile_test[] todosLosTiles = FindObjectsOfType<Tile_test>();
 
         foreach (var tile in todosLosTiles)
         {
-            // 22 Generamos una clave única usando la ID del tile
             string key = tile.id.ToString();
 
-            // 3 Guardamos el tile en el diccionario si no está ya
             if (!tiles.ContainsKey(key))
                 tiles.Add(key, tile);
 
-            // 4 Inicialmente todos los tiles tienen el material por defecto (Apagat)
+            if (EsCasillaCentral(tile.id))
+                tile.SetMaterial(Verd);
+            else
+            {
+                tile.SetMaterial(Apagat);
+                StartCoroutine(ComportamientoAleatorio(tile));
+            }
+        }
+    }
+
+
+    private void Update()
+    {
+        if (!juegoActivo) return;
+
+        tiempoRestante -= Time.deltaTime;
+
+        // Actualizar UI
+        if (textoPuntuacion != null)
+            textoPuntuacion.text =
+                "Puntuación: " + puntuacion;
+
+        if (textoTiempo != null)
+            textoTiempo.text =
+                "Tiempo: " + Mathf.Ceil(tiempoRestante);
+
+
+        if (tiempoRestante <= 0f)
+        {
+            juegoActivo = false;
+
+            Debug.Log("Tiempo terminado");
+
+            foreach (var tile in tiles.Values)
+                tile.SetMaterial(Apagat);
+
+            StopAllCoroutines();
+            return;
+        }
+
+
+        // Click ratón
+        if (Input.GetMouseButtonDown(0))
+        {
+            Ray ray =
+                Camera.main.ScreenPointToRay(Input.mousePosition);
+
+            if (Physics.Raycast(ray, out RaycastHit hit))
+            {
+                Tile_test tile =
+                    hit.collider.GetComponent<Tile_test>();
+
+                if (tile != null)
+                    TilePressed(tile.id, tile);
+            }
+        }
+
+
+        if (Input.GetMouseButtonUp(0))
+        {
+            Ray ray =
+                Camera.main.ScreenPointToRay(Input.mousePosition);
+
+            if (Physics.Raycast(ray, out RaycastHit hit))
+            {
+                Tile_test tile =
+                    hit.collider.GetComponent<Tile_test>();
+
+                if (tile != null)
+                    TileReleased(tile.id, tile);
+            }
+        }
+    }
+
+    public Material GetMaterialForTile(Tile_test.TokenID id)
+    {
+        if (EsCasillaCentral(id))
+            return Verd;
+
+        return Apagat;
+    }
+
+
+    public void TilePressed(Tile_test.TokenID id, Tile_test tile)
+    {
+        if (!juegoActivo) return;
+
+        if (!EsCasillaCentral(id))
+        {
+            Material matActual =
+                tile.GetMaterialActual();
+
+            if (matActual == Blau)
+                puntuacion += 1;
+
+            else if (matActual == Rosa)
+                puntuacion += 2;
+
+            else if (matActual == Vermell)
+                puntuacion -= 1;
+
             tile.SetMaterial(Apagat);
         }
     }
 
-    // ==============================
-    // Devuelve el material que debe usar un tile según su ID
-    // Por defecto todos empiezan con Apagat
-    // Este método se puede ampliar para reglas de colores más complejas
-    // ==============================
-    public Material GetMaterialForTile(Tile_test.TokenID id)
-    {
-        // Aquí podríamos aplicar reglas según la ID
-        // Ejemplo: si id == (0,0) devolver Verd, si id == (1,1) devolver Blau, etc.
-        return Apagat;
-    }
 
-    // ==============================
-    // Método que se llama cuando un tile es pulsado por el Player
-    // tile: referencia al tile que ha sido pulsado
-    // ==============================
-    public void TilePressed(Tile_test.TokenID id, Tile_test tile)
-    {
-        Debug.Log($"GameManager: Tile pulsado {id}");
-
-        // Ejemplo de regla simple:
-        // Si el tile pulsado es (0,0), hacemos algo especial
-        if (id.x == 0 && id.y == 0)
-        {
-            // Cambiamos el tile pulsado a Verd mientras se mantiene el Player encima
-            tile.SetMaterial(Verd);
-
-            // Cambiamos temporalmente otros tiles a Blau (ejemplo)
-            Tile_test.TokenID[] otros = new Tile_test.TokenID[]
-            {
-                new Tile_test.TokenID(0,1),
-                new Tile_test.TokenID(1,0),
-                new Tile_test.TokenID(1,1)
-            };
-
-            foreach (var t in otros)
-            {
-                if (tiles.ContainsKey(t.ToString()))
-                    tiles[t.ToString()].SetMaterial(Blau);
-            }
-
-            // Después de 1 segundo, esos tiles vuelven al color por defecto (Apagat)
-            StartCoroutine(ResetTilesAfterDelay(otros, 1f));
-        }
-
-        // Aquí se pueden añadir más reglas según otras IDs o colores
-    }
-
-    // ==============================
-    // Método que se llama cuando el Player deja de pulsar un tile
-    // Por ejemplo, para restaurar el color del tile pulsado o realizar acciones
-    // ==============================
     public void TileReleased(Tile_test.TokenID id, Tile_test tile)
     {
-        // Ejemplo: mantener Verd en el tile pulsado
-        if (id.x == 0 && id.y == 0)
-        {
+        if (EsCasillaCentral(id))
             tile.SetMaterial(Verd);
-        }
 
-        // Aquí se pueden añadir más reglas según la ID
+        else
+            tile.SetMaterial(Apagat);
     }
 
-    // ==============================
-    // Coroutine para volver los tiles temporales a Apagat después de un tiempo
-    // ==============================
-    private IEnumerator ResetTilesAfterDelay(Tile_test.TokenID[] tilesAResetear, float delay)
-    {
-        yield return new WaitForSeconds(delay);
 
-        foreach (var t in tilesAResetear)
+    private bool EsCasillaCentral(Tile_test.TokenID id)
+    {
+        return (id.x == 1 || id.x == 2) &&
+               (id.y == 1 || id.y == 2);
+    }
+
+
+    private IEnumerator ComportamientoAleatorio(Tile_test tile)
+    {
+        while (juegoActivo)
         {
-            if (tiles.ContainsKey(t.ToString()))
-                tiles[t.ToString()].SetMaterial(Apagat);
+            yield return new WaitForSeconds(
+                Random.Range(1f, 4f) / velocidadJuego);
+
+            if (tile == null)
+                yield break;
+
+            float random = Random.value;
+
+
+            if (random < 0.20f)
+                yield return StartCoroutine(
+                    CambiarTemporal(tile, Blau));
+
+            else if (random < 0.30f)
+                yield return StartCoroutine(
+                    CambiarTemporal(tile, Vermell));
+
+            else if (random < 0.33f)
+                yield return StartCoroutine(
+                    CambiarTemporal(tile, Rosa));
         }
+    }
+
+
+    private IEnumerator CambiarTemporal(
+        Tile_test tile,
+        Material color)
+    {
+        tile.SetMaterial(color);
+
+        yield return new WaitForSeconds(
+            3f / velocidadJuego);
+
+        if (juegoActivo)
+            tile.SetMaterial(Apagat);
     }
 }
