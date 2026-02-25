@@ -205,13 +205,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 24679977}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.5886567, y: 0.0048238933, z: -0.004019305, w: 0.8083588}
+  m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
   m_LocalPosition: {x: 1.0627449, y: 38.49478, z: 2.0891933}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
 --- !u!114 &24679981
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1456,7 +1456,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d7ea8effb234d8045bd8c5177f86cc02, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
-  gridSize: 20
+  gridSize: 6
   GridManagerWithBorders: {fileID: 343157954}
   Apagat: {fileID: 2100000, guid: fad4927d57c9e484aa53e22894bef560, type: 2}
   AzulObjetivo: {fileID: 2100000, guid: f68aa45f604b98b44adb14e90d47d9c1, type: 2}
