@@ -59,42 +59,17 @@ public class TileController : MonoBehaviour
         if (playerDentro) return;
 
         playerDentro = true;
-
-        // Guardamos el estado actual antes de apagarse
-        TileState estadoAntes = currentState;
-
-        // ==========================
-        // Lógica puntos
-        // ==========================
-        switch (estadoAntes)
-        {
-            case TileState.Apagado:
-                // No hace nada
-                break;
-
-            case TileState.Azul:
-                gameManager.AddPunto();
-                Debug.Log($"Tile {id} azul: +1 punto");
-                break;
-
-            case TileState.Rojo:
-                gameManager.RestarPunto();
-                Debug.Log($"Tile {id} rojo: -1 punto");
-                break;
-        }
-
-        // ==========================
-        // Apagar el tile después de interactuar
-        // ==========================
-        ForceSetMaterial(gameManager.Apagat, TileState.Apagado);
+        ActivarTile();
     }
-
     private void OnTriggerExit(Collider other)
     {
         if (!other.CompareTag("Player")) return;
         playerDentro = false;
     }
-
+    private void OnMouseDown()
+    {
+        ActivarTile();
+    }
     // ==========================
     // CAMBIO DE MATERIAL + ESTADO
     // ==========================
@@ -141,4 +116,26 @@ public class TileController : MonoBehaviour
         currentMaterial = newMaterial;
         currentState = newState;
         UpdateRenderer();
-    }}
+    }
+    private void ActivarTile()
+    {
+        switch (currentState)
+        {
+            case TileState.Apagado:
+                break;
+
+            case TileState.Azul:
+                gameManager.AddPunto();
+                Debug.Log($"Tile {id} azul: +1 punto");
+
+                ForceSetMaterial(gameManager.Apagat, TileState.Apagado);
+                gameManager.RemoveBlueTile(this);
+                break;
+
+            case TileState.Rojo:
+                gameManager.RestarPunto();
+                Debug.Log($"Tile {id} rojo: -1 punto");
+                break;
+        }
+    }
+}

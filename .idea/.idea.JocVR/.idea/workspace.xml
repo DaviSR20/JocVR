@@ -5,10 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ba6d6c1f-b147-4175-b7a8-c6484de6c65a" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/Prefab.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Prefabs/Prefab.prefab" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scenes/JocVR.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/JocVR.unity" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scripts/GameManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/GameManager.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/GridManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/GridManager.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/TileController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/TileController.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -109,6 +107,7 @@
       <workItem from="1770711855107" duration="5277000" />
       <workItem from="1771403866207" duration="6790000" />
       <workItem from="1771484816281" duration="371000" />
+      <workItem from="1772003116259" duration="3116000" />
     </task>
     <servers />
   </component>

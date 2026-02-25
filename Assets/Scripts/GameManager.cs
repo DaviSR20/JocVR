@@ -64,7 +64,7 @@ public class GameManager : MonoBehaviour
     {
         tiles.Clear();
 
-        foreach (var tile in FindObjectsOfType<TileController>())
+        foreach (var tile in FindObjectsByType<TileController>(FindObjectsSortMode.None))
         {
             tiles[tile.id.ToString()] = tile;
             tile.ForceSetMaterial(Apagat, TileController.TileState.Apagado);
@@ -121,10 +121,10 @@ public class GameManager : MonoBehaviour
 
     void PintarFila(int fila)
     {
-        // Limpiar barra anterior
+        // Restaurar fila anterior
         foreach (var tile in barraActual)
         {
-            tile.RestorePreviousState(); // Solo se restauran los que no son rojos
+            tile.RestorePreviousState();
         }
 
         barraActual.Clear();
@@ -134,7 +134,8 @@ public class GameManager : MonoBehaviour
         {
             if (tile.id.y == fila)
             {
-                tile.ForceSetMaterial(RojoBarra, TileState.Rojo);
+                tile.SaveCurrentState(); // 🔥 Guardamos estado antes de poner rojo
+                tile.ForceSetMaterial(RojoBarra, TileController.TileState.Rojo);
                 barraActual.Add(tile);
             }
         }
@@ -151,41 +152,10 @@ public class GameManager : MonoBehaviour
         blueTiles.Clear();
         barraActual.Clear();
         filaActualBarra = 0;
-        puntos = 0; // opcional
     }
     // ===============================
     // EVENTO TILE
     // ===============================
-    public void TilePressed(TileController.TokenID id, TileController tile)
-    {
-        if (!rondaActiva) return;
-
-        switch (tile.CurrentState)
-        {
-            case TileController.TileState.Azul:
-                blueTiles.Remove(tile);
-                tile.ForceSetMaterial(Apagat, TileController.TileState.Apagado);
-                AddPunto();
-                Debug.Log($"Tile {id} azul: +1 punto");
-
-                if (blueTiles.Count <= 0)
-                {
-                    Debug.Log("✅ Ronda completada");
-                    StartCoroutine(RestartRound());
-                }
-                break;
-
-            case TileController.TileState.Rojo:
-                RestarPunto();
-                Debug.Log($"Tile {id} rojo: -1 punto");
-                StartCoroutine(RestartRound());
-                break;
-
-            case TileController.TileState.Apagado:
-                // No hace nada
-                break;
-        }
-    }
     public void TileReleased(TileController.TokenID id, TileController tile) { }
 
     IEnumerator RestartRound()
@@ -202,5 +172,34 @@ public class GameManager : MonoBehaviour
 
         if (!tiles.ContainsKey(key))
             tiles.Add(key, tile);
+    }
+    IEnumerator ResetAutomatico()
+    {
+        rondaActiva = false;
+
+        // Restaurar posibles rojos activos
+        foreach (var tile in barraActual)
+            tile.RestorePreviousState();
+
+        barraActual.Clear();
+
+        yield return new WaitForSeconds(0.2f);
+
+        ResetAllTiles();
+
+        yield return new WaitForSeconds(0.5f);
+
+        StartNewRound();
+    }
+    public void RemoveBlueTile(TileController tile)
+    {
+        if (blueTiles.Contains(tile))
+            blueTiles.Remove(tile);
+
+        if (blueTiles.Count == 0)
+        {
+            Debug.Log("✅ No quedan azules");
+            StartCoroutine(ResetAutomatico());
+        }
     }
 }
