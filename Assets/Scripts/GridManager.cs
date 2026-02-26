@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using TMPro;
 
 public class GridManager : MonoBehaviour
 {
@@ -14,9 +15,19 @@ public class GridManager : MonoBehaviour
 
     [Header("Ajustes de bordes")]
     public float borderInset = 3.6f;
-
+    
+    private List<TextMeshPro> textosVidas = new List<TextMeshPro>();
+    
     [Header("Back Ground color")]
     public Material BgText;
+    
+    public void ActualizarTextoVidas(int vidas)
+    {
+        foreach (var texto in textosVidas)
+        {
+            texto.text = "Vidas: " + vidas;
+        }
+    }
 
     public void GenerateGrid(int size)
     {
@@ -178,32 +189,26 @@ public class GridManager : MonoBehaviour
         textObj.transform.localPosition = position;
         textObj.transform.localRotation = rotation;
 
-        // ===== TEXTO =====
-        TMPro.TextMeshPro textMesh = textObj.AddComponent<TMPro.TextMeshPro>();
-        textMesh.text = text;
+        TextMeshPro textMesh = textObj.AddComponent<TextMeshPro>();
+        textMesh.text = "Vidas: 3"; // valor inicial
         textMesh.fontSize = 3;
-        textMesh.alignment = TMPro.TextAlignmentOptions.Center;
+        textMesh.alignment = TextAlignmentOptions.Center;
         textMesh.color = Color.white;
         textMesh.enableAutoSizing = false;
         textMesh.rectTransform.sizeDelta = new Vector2(2f, 1f);
 
-        // ===== FONDO =====
+        // 🔥 GUARDAMOS REFERENCIA
+        textosVidas.Add(textMesh);
+
         GameObject background = GameObject.CreatePrimitive(PrimitiveType.Quad);
         background.name = "Background";
         background.transform.SetParent(textObj.transform);
-
         background.transform.localPosition = new Vector3(0, 0, 0.01f);
         background.transform.localRotation = Quaternion.identity;
         background.transform.localScale = new Vector3(2.2f, 1.2f, 1f);
 
         if (BgText != null)
-        {
             background.GetComponent<MeshRenderer>().material = BgText;
-        }
-        else
-        {
-            Debug.LogWarning("BgText no está asignado en el inspector.");
-        }
 
         Destroy(background.GetComponent<Collider>());
     }

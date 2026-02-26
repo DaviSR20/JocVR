@@ -206,7 +206,7 @@ Transform:
   m_GameObject: {fileID: 24679977}
   serializedVersion: 2
   m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 1.0627449, y: 38.49478, z: 2.0891933}
+  m_LocalPosition: {x: 1.0627449, y: 15, z: 2.0891933}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1462,6 +1462,9 @@ MonoBehaviour:
   AzulObjetivo: {fileID: 2100000, guid: f68aa45f604b98b44adb14e90d47d9c1, type: 2}
   RojoBarra: {fileID: 2100000, guid: 27c1f2049b00b5d4b90f7d965f5bbd89, type: 2}
   tiempoMovimientoBarra: 1
+  GrisParpadeo: {fileID: 2100000, guid: fad4927d57c9e484aa53e22894bef560, type: 2}
+  vidas: 3
+  textoVidas: {fileID: 0}
 --- !u!4 &1973682937
 Transform:
   m_ObjectHideFlags: 0
