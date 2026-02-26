@@ -40,6 +40,9 @@ public class TileController : MonoBehaviour
     private Material originalMaterial;
     private TileState originalState;
     
+    private bool estaParpadeando = false;
+    public bool EstaParpadeando => estaParpadeando;
+
     private MaterialPropertyBlock propBlock;
     private Color baseColor;
     public void Initialize(TokenID newID)
@@ -141,9 +144,7 @@ public class TileController : MonoBehaviour
                 break;
 
             case TileState.Azul:
-                gameManager.AddPunto();
                 StartCoroutine(ParpadeoYDesactivar());
-                Debug.Log($"Tile {id} azul: +1 punto");
                 break;
 
             case TileState.Rojo:
@@ -184,18 +185,29 @@ public class TileController : MonoBehaviour
 
         while (tiempo < duracion)
         {
-            // Apagado
             targetRenderer.material = apagadoMat;
             yield return new WaitForSeconds(intervalo);
 
-            // Original
             targetRenderer.material = materialOriginal;
             yield return new WaitForSeconds(intervalo);
 
             tiempo += intervalo * 2;
         }
 
-        // Asegurar que termina en su material real
         targetRenderer.material = materialOriginal;
+    }
+    private IEnumerator ParpadeoYDesactivar()
+    {
+        estaParpadeando = true;
+
+        gameManager.AddPunto();
+        Debug.Log($"Tile {id} azul: +1 punto");
+
+        yield return StartCoroutine(ParpadeoRutina(gameManager.Apagat, 0.6f));
+
+        ForceSetMaterial(gameManager.Apagat, TileState.Apagado);
+        gameManager.RemoveBlueTile(this);
+
+        estaParpadeando = false;
     }
 }

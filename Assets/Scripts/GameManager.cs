@@ -234,7 +234,9 @@ public class GameManager : MonoBehaviour
         {
             if (tile.id.y == fila)
             {
-                // 🔥 Solo pintamos los que no sean azul
+                if (tile.EstaParpadeando)
+                    continue;
+                //Solo pintamos los que no sean azul
                 tile.SaveCurrentState();
                 tile.ForceSetMaterial(RojoBarra, TileController.TileState.Rojo);
                 barraActual.Add(tile);
