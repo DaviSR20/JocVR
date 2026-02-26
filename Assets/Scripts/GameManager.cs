@@ -144,17 +144,17 @@ public class GameManager : MonoBehaviour
     {
         blueTiles.Clear();
 
-        var randomTiles = tiles.Values
+        var candidatos = tiles.Values
+            .Where(t => !barraActual.Contains(t)) // 🚫 ignorar los que están en la barra
             .OrderBy(x => Random.value)
             .Take(cantidad);
 
-        foreach (var tile in randomTiles)
+        foreach (var tile in candidatos)
         {
             tile.ForceSetMaterial(AzulObjetivo, TileController.TileState.Azul);
             blueTiles.Add(tile);
         }
     }
-
     // ===============================
     // MOVIMIENTO DE BARRA
     // ===============================
@@ -193,24 +193,24 @@ public class GameManager : MonoBehaviour
 
         while (contador < tiempoTotal)
         {
-            // 🔘 Poner gris
+            // Gris encima
             foreach (var tile in barraActual)
-            {
-                tile.ForceSetMaterial(GrisParpadeo, TileController.TileState.Rojo);
-            }
+                tile.ApplyOverlayColor(GrisParpadeo.color);
 
             yield return new WaitForSeconds(intervalo);
 
-            // 🔴 Volver a rojo
+            // Rojo encima
             foreach (var tile in barraActual)
-            {
-                tile.ForceSetMaterial(RojoBarra, TileController.TileState.Rojo);
-            }
+                tile.ApplyOverlayColor(RojoBarra.color);
 
             yield return new WaitForSeconds(intervalo);
 
             contador += intervalo * 2;
         }
+
+        // Restaurar material original
+        foreach (var tile in barraActual)
+            tile.RestoreBaseColor();
 
         barraPausada = false;
     }
@@ -234,10 +234,6 @@ public class GameManager : MonoBehaviour
         {
             if (tile.id.y == fila)
             {
-                // 🛑 SI ES AZUL, NO LO TOCAMOS
-                if (tile.CurrentState == TileController.TileState.Azul)
-                    continue;
-
                 // 🔥 Solo pintamos los que no sean azul
                 tile.SaveCurrentState();
                 tile.ForceSetMaterial(RojoBarra, TileController.TileState.Rojo);

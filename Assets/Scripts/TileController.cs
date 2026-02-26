@@ -38,7 +38,9 @@ public class TileController : MonoBehaviour
     // Guardamos el color original del tile
     private Material originalMaterial;
     private TileState originalState;
-
+    
+    private MaterialPropertyBlock propBlock;
+    private Color baseColor;
     public void Initialize(TokenID newID)
     {
         id = newID;
@@ -52,6 +54,12 @@ public class TileController : MonoBehaviour
         // Guardar estado inicial
         originalMaterial = targetRenderer.material;
         originalState = currentState;
+        propBlock = new MaterialPropertyBlock();
+
+        if (targetRenderer != null)
+        {
+            baseColor = targetRenderer.material.color;
+        }
     }
 
     private void OnTriggerEnter(Collider other)
@@ -146,4 +154,18 @@ public class TileController : MonoBehaviour
                 break;
         }
     }
+    public void ApplyOverlayColor(Color color)
+    {
+        if (targetRenderer == null) return;
+
+        targetRenderer.material.color = color;
+    }
+    public void RestoreBaseColor()
+    {
+        if (targetRenderer == null) return;
+
+        if (currentMaterial != null)
+            targetRenderer.material.color = currentMaterial.color;
+    }
+    
 }
