@@ -67,6 +67,7 @@ public class TileController : MonoBehaviour
         if (!other.CompareTag("Player")) return;
         playerDentro = false;
     }
+    
     public void ActivarDesdeClick()
     {
         ActivarTile();
@@ -74,6 +75,11 @@ public class TileController : MonoBehaviour
     // ==========================
     // CAMBIO DE MATERIAL + ESTADO
     // ==========================
+    public void SetVisualMaterial(Material mat)
+    {
+        var renderer = GetComponent<Renderer>();
+        renderer.material = mat;
+    }
     public void SetMaterial(Material newMaterial, TileState newState)
     {
         if (currentState == TileState.Rojo && newState != TileState.Rojo)
@@ -134,8 +140,9 @@ public class TileController : MonoBehaviour
                 break;
 
             case TileState.Rojo:
-                gameManager.RestarPunto();
-                Debug.Log($"Tile {id} rojo: -1 punto");
+                gameManager.RestarVida();
+                Debug.Log($"Tile {id} rojo: -1 vida");
+                gameManager.PararYParpadearBarra();
                 break;
         }
     }

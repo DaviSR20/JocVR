@@ -19,6 +19,13 @@ public class GameManager : MonoBehaviour
 
     [Header("Barra")]
     public float tiempoMovimientoBarra = 1f;
+    private int direccionBarra = 1; // 1 = hacia abajo, -1 = hacia arriba
+    private bool barraPausada = false;
+    public Material GrisParpadeo;
+    
+    [Header("Vidas")]
+    public int vidas = 3;
+    public TextMeshPro textoVidas;
 
     private Dictionary<string, TileController> tiles = new Dictionary<string, TileController>();
     private List<TileController> blueTiles = new List<TileController>();
@@ -42,18 +49,44 @@ public class GameManager : MonoBehaviour
     {
         puntos -= 1;
         Debug.Log("Puntos actuales: " + puntos);
+        vidas--;
+        ActualizarTextoVidas();
+
+        if (vidas <= 0)
+        {
+            Debug.Log("Game Over");
+        }
     }
 
-
+    void ActualizarTextoVidas()
+    {
+        if (textoVidas != null)
+            textoVidas.text = "Vidas: " + vidas;
+    }
     void Start()
     {
         StartCoroutine(StartGame());
+        GridManagerWithBorders.ActualizarTextoVidas(vidas);
     }
     void Update()
     {
         if (Input.GetMouseButtonDown(0))
         {
             DetectarClick();
+        }
+    }
+    public void RestarVida()
+    {
+        vidas--;
+
+        Debug.Log("Vidas restantes: " + vidas);
+
+        GridManagerWithBorders.ActualizarTextoVidas(vidas);
+
+        if (vidas <= 0)
+        {
+            Debug.Log("GAME OVER");
+            rondaActiva = false;
         }
     }
     void DetectarClick()
@@ -127,17 +160,63 @@ public class GameManager : MonoBehaviour
     // ===============================
     IEnumerator MoverBarra()
     {
-        while (rondaActiva)
+        while (true)
         {
-            PintarFila(filaActualBarra);
+            if (!barraPausada)
+            {
+                PintarFila(filaActualBarra);
 
-            filaActualBarra++;
+                filaActualBarra += direccionBarra;
 
-            if (filaActualBarra >= gridSize)
-                filaActualBarra = 0;
+                if (filaActualBarra >= gridSize - 1)
+                {
+                    filaActualBarra = gridSize - 1;
+                    direccionBarra = -1;
+                }
+                else if (filaActualBarra <= 0)
+                {
+                    filaActualBarra = 0;
+                    direccionBarra = 1;
+                }
+            }
 
             yield return new WaitForSeconds(tiempoMovimientoBarra);
         }
+    }
+    IEnumerator ParpadeoBarra()
+    {
+        barraPausada = true;
+
+        float tiempoTotal = 2f;
+        float intervalo = 0.2f;
+        float contador = 0f;
+
+        while (contador < tiempoTotal)
+        {
+            // 🔘 Poner gris
+            foreach (var tile in barraActual)
+            {
+                tile.ForceSetMaterial(GrisParpadeo, TileController.TileState.Rojo);
+            }
+
+            yield return new WaitForSeconds(intervalo);
+
+            // 🔴 Volver a rojo
+            foreach (var tile in barraActual)
+            {
+                tile.ForceSetMaterial(RojoBarra, TileController.TileState.Rojo);
+            }
+
+            yield return new WaitForSeconds(intervalo);
+
+            contador += intervalo * 2;
+        }
+
+        barraPausada = false;
+    }
+    public void PararYParpadearBarra()
+    {
+        StartCoroutine(ParpadeoBarra());
     }
 
     void PintarFila(int fila)
@@ -155,7 +234,12 @@ public class GameManager : MonoBehaviour
         {
             if (tile.id.y == fila)
             {
-                tile.SaveCurrentState(); // 🔥 Guardamos estado antes de poner rojo
+                // 🛑 SI ES AZUL, NO LO TOCAMOS
+                if (tile.CurrentState == TileController.TileState.Azul)
+                    continue;
+
+                // 🔥 Solo pintamos los que no sean azul
+                tile.SaveCurrentState();
                 tile.ForceSetMaterial(RojoBarra, TileController.TileState.Rojo);
                 barraActual.Add(tile);
             }
@@ -217,10 +301,11 @@ public class GameManager : MonoBehaviour
         if (blueTiles.Contains(tile))
             blueTiles.Remove(tile);
 
-        if (blueTiles.Count == 0)
+        if (blueTiles.Count <= 0)
         {
-            Debug.Log("✅ No quedan azules");
-            StartCoroutine(ResetAutomatico());
+            Debug.Log("Ronda completada");
+
+            GenerateBlueTiles(5); // genera nuevos azules
         }
     }
 }
