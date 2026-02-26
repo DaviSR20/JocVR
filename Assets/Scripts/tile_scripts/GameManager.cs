@@ -11,6 +11,8 @@ public class GameManager : MonoBehaviour
     public Material Blau;
     public Material Vermell;
     public Material Rosa;
+    public float velocidadParpadeo = 0.15f;
+    public int repeticionesParpadeo = 3;
 
     [Header("Configuración del juego")]
     public float tiempoLimite = 60f;     // Editable en Inspector
@@ -134,8 +136,7 @@ public class GameManager : MonoBehaviour
 
         if (!EsCasillaCentral(id))
         {
-            Material matActual =
-                tile.GetMaterialActual();
+            Material matActual = tile.GetMaterialActual();
 
             if (matActual == Blau)
                 puntuacion += 1;
@@ -146,8 +147,22 @@ public class GameManager : MonoBehaviour
             else if (matActual == Vermell)
                 puntuacion -= 1;
 
-            tile.SetMaterial(Apagat);
+            StartCoroutine(Parpadeo(tile, matActual));
         }
+    }
+
+    IEnumerator Parpadeo(Tile_test tile, Material materialOriginal)
+    {
+        for (int i = 0; i < repeticionesParpadeo; i++)
+        {
+            tile.SetMaterial(Apagat);
+            yield return new WaitForSeconds(velocidadParpadeo);
+
+            tile.SetMaterial(materialOriginal);
+            yield return new WaitForSeconds(velocidadParpadeo);
+        }
+
+        tile.SetMaterial(Apagat);
     }
 
 
