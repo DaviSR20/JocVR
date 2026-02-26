@@ -8879,6 +8879,7 @@ MonoBehaviour:
   velocidadJuego: 1
   textoPuntuacion: {fileID: 0}
   textoTiempo: {fileID: 0}
+  cameraDisplay2: {fileID: 330585545}
   puntuacion: 0
   tiempoRestante: 60
 --- !u!4 &1236216596
