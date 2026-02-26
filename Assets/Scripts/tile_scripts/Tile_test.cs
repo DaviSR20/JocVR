@@ -57,7 +57,7 @@ public class Tile_test : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Player") && !playerDentro)
+        if (other.CompareTag("Pies") && !playerDentro)
         {
             playerDentro = true;
 
@@ -70,7 +70,7 @@ public class Tile_test : MonoBehaviour
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.CompareTag("Player") && playerDentro)
+        if (other.CompareTag("Pies") && playerDentro)
         {
             playerDentro = false;
 

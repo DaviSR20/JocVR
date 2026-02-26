@@ -19,6 +19,8 @@ public class GameManager : MonoBehaviour
     [Header("UI")]
     public TextMeshProUGUI textoPuntuacion; // Arrastrar texto puntuación
     public TextMeshProUGUI textoTiempo;     // Arrastrar texto tiempo
+    public Camera cameraDisplay2;
+
 
     [Header("Estado del juego")]
     public int puntuacion = 0;
@@ -88,7 +90,7 @@ public class GameManager : MonoBehaviour
         if (Input.GetMouseButtonDown(0))
         {
             Ray ray =
-                Camera.main.ScreenPointToRay(Input.mousePosition);
+                cameraDisplay2.ScreenPointToRay(Input.mousePosition);
 
             if (Physics.Raycast(ray, out RaycastHit hit))
             {
@@ -104,7 +106,7 @@ public class GameManager : MonoBehaviour
         if (Input.GetMouseButtonUp(0))
         {
             Ray ray =
-                Camera.main.ScreenPointToRay(Input.mousePosition);
+                cameraDisplay2.ScreenPointToRay(Input.mousePosition);
 
             if (Physics.Raycast(ray, out RaycastHit hit))
             {
