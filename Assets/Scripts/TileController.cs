@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using System.Collections;
 
 public class TileController : MonoBehaviour
 {
@@ -141,10 +142,8 @@ public class TileController : MonoBehaviour
 
             case TileState.Azul:
                 gameManager.AddPunto();
+                StartCoroutine(ParpadeoYDesactivar());
                 Debug.Log($"Tile {id} azul: +1 punto");
-
-                ForceSetMaterial(gameManager.Apagat, TileState.Apagado);
-                gameManager.RemoveBlueTile(this);
                 break;
 
             case TileState.Rojo:
@@ -167,5 +166,36 @@ public class TileController : MonoBehaviour
         if (currentMaterial != null)
             targetRenderer.material.color = currentMaterial.color;
     }
-    
+    public void ParpadearAlPisar(Material apagadoMat, float duracion = 0.6f)
+    {
+        StartCoroutine(ParpadeoRutina(apagadoMat, duracion));
+
+    }
+
+    private IEnumerator ParpadeoRutina(Material apagadoMat, float duracion)
+    {
+        if (targetRenderer == null || currentMaterial == null)
+            yield break;
+
+        float intervalo = 0.1f;
+        float tiempo = 0f;
+
+        Material materialOriginal = currentMaterial;
+
+        while (tiempo < duracion)
+        {
+            // Apagado
+            targetRenderer.material = apagadoMat;
+            yield return new WaitForSeconds(intervalo);
+
+            // Original
+            targetRenderer.material = materialOriginal;
+            yield return new WaitForSeconds(intervalo);
+
+            tiempo += intervalo * 2;
+        }
+
+        // Asegurar que termina en su material real
+        targetRenderer.material = materialOriginal;
+    }
 }
