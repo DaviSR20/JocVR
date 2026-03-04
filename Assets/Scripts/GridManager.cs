@@ -1,7 +1,8 @@
 using UnityEngine;
 using System.Collections.Generic;
+using TMPro;
 
-public class GridManagerWithBorders : MonoBehaviour
+public class GridManager : MonoBehaviour
 {
     [Header("Prefabs")]
     public GameObject tilePrefab;
@@ -10,10 +11,23 @@ public class GridManagerWithBorders : MonoBehaviour
 
     [Header("Tamaño y rotación")]
     public float tileSize = 2f;
-    private Vector3 tileRotation = new Vector3(86.803f, -5.987f, -4.2340f);
+    private Vector3 tileRotation = new Vector3(0f, 0f, 0f);
 
     [Header("Ajustes de bordes")]
     public float borderInset = 3.6f;
+    
+    private List<TextMeshPro> textosVidas = new List<TextMeshPro>();
+    
+    [Header("Back Ground color")]
+    public Material BgText;
+    
+    public void ActualizarTextoVidas(int vidas)
+    {
+        foreach (var texto in textosVidas)
+        {
+            texto.text = "Vidas: " + vidas;
+        }
+    }
 
     public void GenerateGrid(int size)
     {
@@ -55,9 +69,26 @@ public class GridManagerWithBorders : MonoBehaviour
                     tileGO.transform.localRotation = Quaternion.Euler(tileRotation);
                     tileGO.transform.localScale = Vector3.one * 1.1f;
                     tileGO.name = $"Tile {x + 1},{y + 1} (Core)";
-
+                    
+                    TileController tileController = tileGO.GetComponent<TileController>();
+                    if (tileController != null)
+                    {
+                        tileController.Initialize(new TileController.TokenID(x, y));
+                    }
+                    
                     coreTiles.Add(tileGO);
+                    // 🎨 Asignar color aleatorio
+                    CubeMaterialController tileScript = tileGO.GetComponent<CubeMaterialController>();
+                    if(tileScript != null)
+                    {
+                        int r = Random.Range(0, 3);
+                        if (r == 0) tileScript.ChangeMaterial(TipusMaterial.MaterialA);
+                        else if (r == 1) tileScript.ChangeMaterial(TipusMaterial.MaterialB);
+                        else tileScript.ChangeMaterial(TipusMaterial.MaterialC);
+                    }
+
                 }
+                
             }
         }
 
@@ -104,7 +135,7 @@ public class GridManagerWithBorders : MonoBehaviour
                     // Ajustes de esquinas
                     if (esEsquina && cornerPrefab != null)
                     {
-                        position.y += 0.63f;
+                        position.y += 0.64f;
                         if (x == 0 && y == 0) rotation = new Vector3(-90, -90, 0);
                         else if (x == size - 1 && y == 0) rotation = new Vector3(-90, 180, 0);
                         else if (x == size - 1 && y == size - 1) rotation = new Vector3(-90, 90, 0);
@@ -115,11 +146,73 @@ public class GridManagerWithBorders : MonoBehaviour
                     tileGO.transform.localPosition = position;
                     tileGO.transform.localRotation = Quaternion.Euler(rotation);
                     tileGO.name = $"Tile {x + 1},{y + 1} ({prefabToUse.name})";
+                    
                 }
+                
             }
+            
         }
+        CreateSideMessages(size);
     }
+    
+    private void CreateSideMessages(int size)
+    {
+        float halfGrid = (size * tileSize) / 2f;
+        float textHeight = tileSize * 0.6f;   // altura del texto
+        float offsetFromBorder = borderInset - 5f; // separación extra
 
+        // ARRIBA
+        Vector3 arribaPos = new Vector3(0, textHeight, halfGrid + offsetFromBorder);
+        Quaternion arribaRot = Quaternion.Euler(60, 0, 0);
+        CreateSideText(arribaPos, "ARRIBA", arribaRot);
+
+        // ABAJO
+        Vector3 abajoPos = new Vector3(0, textHeight, -halfGrid - offsetFromBorder);
+        Quaternion abajoRot = Quaternion.Euler(60, 180, 0);
+        CreateSideText(abajoPos, "ABAJO", abajoRot);
+
+        // IZQUIERDA
+        Vector3 izquierdaPos = new Vector3(-halfGrid - offsetFromBorder, textHeight, 0);
+        Quaternion izquierdaRot = Quaternion.Euler(60, 270, 0);
+        CreateSideText(izquierdaPos, "IZQUIERDA", izquierdaRot);
+
+        // DERECHA
+        Vector3 derechaPos = new Vector3(halfGrid + offsetFromBorder, textHeight,0);
+        Quaternion derechaRot = Quaternion.Euler(60, 90, 0);
+        CreateSideText(derechaPos, "DERECHA", derechaRot);
+    }
+    
+    private void CreateSideText(Vector3 position, string text, Quaternion rotation)
+    {
+        GameObject textObj = new GameObject($"SideText_{text}");
+        textObj.transform.SetParent(transform);
+        textObj.transform.localPosition = position;
+        textObj.transform.localRotation = rotation;
+
+        TextMeshPro textMesh = textObj.AddComponent<TextMeshPro>();
+        textMesh.text = "Vidas: 3"; // valor inicial
+        textMesh.fontSize = 3;
+        textMesh.alignment = TextAlignmentOptions.Center;
+        textMesh.color = Color.white;
+        textMesh.enableAutoSizing = false;
+        textMesh.rectTransform.sizeDelta = new Vector2(2f, 1f);
+
+        // 🔥 GUARDAMOS REFERENCIA
+        textosVidas.Add(textMesh);
+
+        GameObject background = GameObject.CreatePrimitive(PrimitiveType.Quad);
+        background.name = "Background";
+        background.transform.SetParent(textObj.transform);
+        background.transform.localPosition = new Vector3(0, 0, 0.01f);
+        background.transform.localRotation = Quaternion.identity;
+        background.transform.localScale = new Vector3(2.2f, 1.2f, 1f);
+
+        if (BgText != null)
+            background.GetComponent<MeshRenderer>().material = BgText;
+
+        Destroy(background.GetComponent<Collider>());
+    }
+    
     private void CenterTilesCore(List<GameObject> coreTiles)
     {
         if (coreTiles.Count == 0) return;
