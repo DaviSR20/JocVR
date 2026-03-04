@@ -5,7 +5,7 @@ public class MenuManager : MonoBehaviour
 {
     public void CargarJuego1()
     {
-        SceneManager.LoadScene("Juego1");
+        SceneManager.LoadScene("JocVR");
     }
 
     public void CargarJuego2()
