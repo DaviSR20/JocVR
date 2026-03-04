@@ -205,9 +205,17 @@ public class TileController : MonoBehaviour
 
         yield return StartCoroutine(ParpadeoRutina(gameManager.Apagat, 0.6f));
 
+        // Primero lo dejamos apagado
         ForceSetMaterial(gameManager.Apagat, TileState.Apagado);
         gameManager.RemoveBlueTile(this);
 
         estaParpadeando = false;
+
+        // Comprobar si la barra está actualmente en esta fila
+        if (gameManager.BarraEstaEnFila(id.y))
+        {
+            ForceSetMaterial(gameManager.RojoBarra, TileState.Rojo);
+            gameManager.AgregarTileABarra(this);
+        }        
     }
 }

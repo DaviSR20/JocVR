@@ -27,6 +27,8 @@ public class GameManager : MonoBehaviour
     public int vidas = 3;
     public TextMeshPro textoVidas;
 
+    public int FilaActualBarra => filaActualBarra;
+
     private Dictionary<string, TileController> tiles = new Dictionary<string, TileController>();
     private List<TileController> blueTiles = new List<TileController>();
     private List<TileController> barraActual = new List<TileController>();
@@ -305,5 +307,20 @@ public class GameManager : MonoBehaviour
 
             GenerateBlueTiles(5); // genera nuevos azules
         }
+    }
+    public bool BarraEstaEnFila(int filaTile)
+    {
+        int filaReal = filaActualBarra - direccionBarra;
+
+        // Ajuste por rebote en bordes
+        if (filaActualBarra == 0 || filaActualBarra == gridSize - 1)
+            filaReal = filaActualBarra;
+
+        return filaReal == filaTile;
+    }
+    public void AgregarTileABarra(TileController tile)
+    {
+        if (!barraActual.Contains(tile))
+            barraActual.Add(tile);
     }
 }
