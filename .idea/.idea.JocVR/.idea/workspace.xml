@@ -6,6 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="ba6d6c1f-b147-4175-b7a8-c6484de6c65a" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.JocVR/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.JocVR/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/XR/Settings/OpenXRPackageSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/XR/Settings/OpenXRPackageSettings.asset" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -27,7 +28,7 @@
   &quot;keyToString&quot;: {
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;David&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;David-Victor&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
@@ -108,7 +109,8 @@
       <workItem from="1771484816281" duration="371000" />
       <workItem from="1772003116259" duration="7595000" />
       <workItem from="1772089979889" duration="7360000" />
-      <workItem from="1772608509803" duration="5690000" />
+      <workItem from="1772608509803" duration="6155000" />
+      <workItem from="1772615415491" duration="596000" />
     </task>
     <servers />
   </component>
