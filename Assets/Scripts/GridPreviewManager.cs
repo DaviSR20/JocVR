@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GridPreviewManager : MonoBehaviour
 {
@@ -16,74 +17,77 @@ public class GridPreviewManager : MonoBehaviour
     public float scaleSpeed = 0.5f;
     public float rotationSpeed = 90f;
 
-    [Header("Locomoción")]
-    [Tooltip("Arrastra aquí el objeto que tiene el OVRPlayerController")]
-    public MonoBehaviour playerController; 
+    [Header("Locomoción (OVRInteractionRig)")]
+    [Tooltip("Arrastra aquí el objeto 'Locomotion' que está dentro de tu OVRInteractionRig")]
+    public GameObject playerObject; 
+
+    [Header("Passthrough (Building Block)")]
+    public OVRPassthroughLayer passthroughLayer;
 
     private GameObject previewRoot;
     private bool editMode = false;
 
     void Update()
     {
-        HandleAButton();
-        HandleExitEdit();
+        HandleInputBase();
 
-        if (!editMode || previewRoot == null)
-            return;
-
-        // Ahora ambos ejes del Joystick DERECHO controlan todo
-        HandleEditActions();
+        if (editMode && previewRoot != null)
+        {
+            HandleEditActions();
+        }
     }
 
-    void HandleAButton()
+    // =====================================================
+    // ENTRADA DE CONTROLES
+    // =====================================================
+    void HandleInputBase()
     {
-        // Botón A (Mando Derecho) para Crear o Reposicionar donde esté el Mando Izquierdo
+        // Botón A (Derecho): Crear o Reposicionar
         if (OVRInput.GetDown(OVRInput.Button.One, OVRInput.Controller.RTouch))
         {
             if (previewRoot == null)
             {
                 CreateGrid();
-                SetEditMode(true); 
+                SetEditMode(true);
             }
             else if (editMode)
             {
                 RepositionGrid();
             }
         }
-    }
 
-    void HandleExitEdit()
-    {
-        // Botón X (Mando Izquierdo) para activar/desactivar edición
+        // Botón X (Izquierdo): Alternar modo edición
         if (OVRInput.GetDown(OVRInput.Button.One, OVRInput.Controller.LTouch))
         {
             SetEditMode(!editMode);
         }
     }
 
-    [Header("Locomoción")]
-    [Tooltip("Arrastra aquí el objeto 'Locomotion' que está dentro del OVRInteractionRig")]
-    public GameObject playerObject; 
-
-    void SetEditMode(bool state)
+    void HandleEditActions()
     {
-        editMode = state;
-    
-        if (playerObject != null)
+        Vector2 input = OVRInput.Get(OVRInput.Axis2D.PrimaryThumbstick, OVRInput.Controller.RTouch);
+
+        // Escalar (Vertical)
+        if (Mathf.Abs(input.y) > 0.1f)
         {
-            // Al desactivar el objeto Locomotion, los joysticks dejan de mover al jugador
-            // y pasan a controlar el escalado y rotación del escenario.
-            playerObject.SetActive(!state); 
+            float scaleAmount = input.y * scaleSpeed * Time.deltaTime;
+            previewRoot.transform.localScale += Vector3.one * scaleAmount;
+            if (previewRoot.transform.localScale.x < 0.01f) previewRoot.transform.localScale = Vector3.one * 0.01f;
         }
 
-        Debug.Log(state ? "🟢 MODO EDICIÓN: Movimiento bloqueado" : "🔴 MODO JUEGO: Movimiento activado");
+        // Rotar (Horizontal)
+        if (Mathf.Abs(input.x) > 0.1f)
+        {
+            previewRoot.transform.Rotate(Vector3.up, -input.x * rotationSpeed * Time.deltaTime, Space.World);
+        }
     }
 
+    // =====================================================
+    // GESTIÓN DEL ESCENARIO
+    // =====================================================
     void CreateGrid()
     {
         previewRoot = new GameObject("Escenario_Preview_Root");
-        
-        // Se instancia en la posición del mando IZQUIERDO como pediste
         previewRoot.transform.position = leftController.position;
         previewRoot.transform.localScale = Vector3.one * 0.1f;
 
@@ -98,39 +102,63 @@ public class GridPreviewManager : MonoBehaviour
                 GameObject token = Instantiate(tokenPrefab, previewRoot.transform);
                 token.transform.localPosition = posicionLocal;
                 
-                // Asignar el ID al token si el prefab tiene el script Tile_test
-                Tile_test tScript = token.GetComponent<Tile_test>();
-                if (tScript != null) tScript.id = new Tile_test.TokenID(x, z);
+                Tile_test tileScript = token.GetComponent<Tile_test>();
+                if (tileScript != null) tileScript.id = new Tile_test.TokenID(x, z);
             }
         }
     }
 
-    void RepositionGrid()
+    void RepositionGrid() => previewRoot.transform.position = leftController.position;
+
+    void SetEditMode(bool state)
     {
-        // El mando izquierdo manda la posición
-        previewRoot.transform.position = leftController.position;
+        editMode = state;
+        if (playerObject != null) playerObject.SetActive(!state);
     }
 
-    void HandleEditActions()
+    // =====================================================
+    // FUNCIONES UI
+    // =====================================================
+    public void ConfirmarAjustes()
     {
-        // Leemos el Joystick DERECHO únicamente
-        Vector2 input = OVRInput.Get(OVRInput.Axis2D.PrimaryThumbstick, OVRInput.Controller.RTouch);
-
-        // 1. Eje Vertical (Y) -> ESCALAR
-        if (Mathf.Abs(input.y) > 0.1f)
+        if (previewRoot != null)
         {
-            float scaleAmount = input.y * scaleSpeed * Time.deltaTime;
-            previewRoot.transform.localScale += Vector3.one * scaleAmount;
-            
-            // Límite de seguridad
-            if (previewRoot.transform.localScale.x < 0.01f) 
-                previewRoot.transform.localScale = Vector3.one * 0.01f;
+            PlayerPrefs.SetFloat("EscenarioPosX", previewRoot.transform.position.x);
+            PlayerPrefs.SetFloat("EscenarioPosY", previewRoot.transform.position.y);
+            PlayerPrefs.SetFloat("EscenarioPosZ", previewRoot.transform.position.z);
+            PlayerPrefs.SetFloat("EscenarioRotY", previewRoot.transform.eulerAngles.y);
+            PlayerPrefs.SetFloat("EscenarioEscala", previewRoot.transform.localScale.x);
+            PlayerPrefs.Save();
+            SceneManager.LoadScene("Countdown");
         }
+    }
 
-        // 2. Eje Horizontal (X) -> ROTAR (Eje Y)
-        if (Mathf.Abs(input.x) > 0.1f)
+    public void ReiniciarAjustes()
+    {
+        if (previewRoot != null) { Destroy(previewRoot); previewRoot = null; SetEditMode(false); }
+    }
+
+    public void AlternarPassthrough()
+    {
+        if (passthroughLayer != null)
         {
-            previewRoot.transform.Rotate(Vector3.up, -input.x * rotationSpeed * Time.deltaTime, Space.World);
+            // 1. Alternamos el componente
+            passthroughLayer.enabled = !passthroughLayer.enabled;
+            
+            // 2. Ajustamos la cámara para que el fondo sea transparente
+            Camera cam = Camera.main;
+            if (cam != null)
+            {
+                if (passthroughLayer.enabled)
+                {
+                    cam.clearFlags = CameraClearFlags.SolidColor;
+                    cam.backgroundColor = new Color(0, 0, 0, 0); // Transparente
+                }
+                else
+                {
+                    cam.clearFlags = CameraClearFlags.Skybox;
+                }
+            }
         }
     }
 }
