@@ -36,14 +36,14 @@ public class Tile_test : MonoBehaviour
     private Material currentMaterial;
     private bool playerDentro = false;
 
-    private GameManager gameManager;
+    private PcGameManager gameManager;
 
     private void Start()
     {
         if (panelRenderer == null)
             panelRenderer = transform.Find("panel")?.GetComponent<Renderer>();
 
-        gameManager = FindObjectOfType<GameManager>();
+        gameManager = FindObjectOfType<PcGameManager>();
         if (gameManager == null)
             Debug.LogError("No se ha encontrado GameManager en la escena");
 
@@ -81,7 +81,7 @@ public class Tile_test : MonoBehaviour
         }
     }
 
-    // Método para que GameManager cambie el material
+    // Mï¿½todo para que GameManager cambie el material
     public void SetMaterial(Material newMaterial)
     {
         currentMaterial = newMaterial;
@@ -89,13 +89,13 @@ public class Tile_test : MonoBehaviour
             panelRenderer.material = currentMaterial;
     }
 
-    // Método para obtener el material actual
+    // Mï¿½todo para obtener el material actual
     public Material GetMaterialActual()
     {
         return currentMaterial;
     }
 
-    // Métodos para acceder a los materiales
+    // Mï¿½todos para acceder a los materiales
     public Material GetApagat() => Apagat;
     public Material GetVerd() => Verd;
     public Material GetBlau() => Blau;

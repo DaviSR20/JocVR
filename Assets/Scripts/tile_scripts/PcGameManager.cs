@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 
-public class GameManager : MonoBehaviour
+public class PcGameManager : MonoBehaviour
 {
     [Header("Materiales")]
     public Material Apagat;
@@ -12,12 +12,12 @@ public class GameManager : MonoBehaviour
     public Material Vermell;
     public Material Rosa;
 
-    [Header("Configuración del juego")]
+    [Header("Configuraciï¿½n del juego")]
     public float tiempoLimite = 60f;     // Editable en Inspector
     public float velocidadJuego = 1f;    // Editable en Inspector
 
     [Header("UI")]
-    public TextMeshProUGUI textoPuntuacion; // Arrastrar texto puntuación
+    public TextMeshProUGUI textoPuntuacion; // Arrastrar texto puntuaciï¿½n
     public TextMeshProUGUI textoTiempo;     // Arrastrar texto tiempo
     public Camera cameraDisplay2;
 
@@ -65,7 +65,7 @@ public class GameManager : MonoBehaviour
         // Actualizar UI
         if (textoPuntuacion != null)
             textoPuntuacion.text =
-                "Puntuación: " + puntuacion;
+                "Puntuaciï¿½n: " + puntuacion;
 
         if (textoTiempo != null)
             textoTiempo.text =
@@ -86,7 +86,7 @@ public class GameManager : MonoBehaviour
         }
 
 
-        // Click ratón
+        // Click ratï¿½n
         if (Input.GetMouseButtonDown(0))
         {
             Ray ray =

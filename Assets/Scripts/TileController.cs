@@ -1,0 +1,226 @@
+using System;
+using UnityEngine;
+using System.Collections;
+
+public class TileController : MonoBehaviour
+{
+    private Material previousMaterial;
+    private TileState previousState;
+
+    public enum TileState
+    {
+        Apagado,
+        Azul,
+        Rojo
+    }
+
+    [System.Serializable]
+    public struct TokenID
+    {
+        public int x, y;
+        public TokenID(int x, int y) { this.x = x; this.y = y; }
+        public override string ToString() => $"({x},{y})";
+    }
+
+    [Header("ID del Tile")]
+    public TokenID id;
+
+    [Header("Renderer del Panel")]
+    [SerializeField] private Renderer targetRenderer;
+
+    private GameManager gameManager;
+    private bool playerDentro = false;
+
+    private Material currentMaterial;
+    private TileState currentState = TileState.Apagado;
+
+    public TileState CurrentState => currentState;
+
+    private Material originalMaterial;
+    private TileState originalState;
+
+    private bool estaParpadeando = false;
+    public bool EstaParpadeando => estaParpadeando;
+
+    private MaterialPropertyBlock propBlock;
+    private Color baseColor;
+
+    public void Initialize(TokenID newID)
+    {
+        id = newID;
+
+        //Buscar el hijo llamado "panel"
+        if (targetRenderer == null)
+        {
+            Transform panelTransform = transform.Find("panel");
+
+            if (panelTransform != null)
+                targetRenderer = panelTransform.GetComponent<Renderer>();
+            else
+                Debug.LogError("No se encontró el hijo 'panel' en el prefab.");
+        }
+
+        gameManager = GameManager.Instance;
+        gameManager?.RegisterTile(this);
+
+        if (targetRenderer != null)
+        {
+            originalMaterial = targetRenderer.material;
+            originalState = currentState;
+            propBlock = new MaterialPropertyBlock();
+            baseColor = targetRenderer.material.color;
+        }
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (!other.CompareTag("Player")) return;
+        if (playerDentro) return;
+
+        playerDentro = true;
+        ActivarTile();
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (!other.CompareTag("Player")) return;
+        playerDentro = false;
+    }
+
+    public void ActivarDesdeClick()
+    {
+        ActivarTile();
+    }
+
+    // ==========================
+    // CAMBIO DE MATERIAL + ESTADO
+    // ==========================
+
+    public void SetVisualMaterial(Material mat)
+    {
+        if (targetRenderer != null)
+            targetRenderer.material = mat;
+    }
+
+    public void SetMaterial(Material newMaterial, TileState newState)
+    {
+        if (currentState == TileState.Rojo && newState != TileState.Rojo)
+            return;
+
+        currentMaterial = newMaterial;
+        currentState = newState;
+        UpdateRenderer();
+    }
+
+    public void ResetTile(Material apagadoMaterial)
+    {
+        ForceSetMaterial(apagadoMaterial, TileState.Apagado);
+    }
+
+    public void SaveCurrentState()
+    {
+        previousMaterial = currentMaterial;
+        previousState = currentState;
+    }
+
+    public void RestorePreviousState()
+    {
+        if (previousMaterial != null)
+        {
+            currentMaterial = previousMaterial;
+            currentState = previousState;
+            UpdateRenderer();
+        }
+    }
+
+    private void UpdateRenderer()
+    {
+        if (targetRenderer != null && currentMaterial != null)
+            targetRenderer.material = currentMaterial;
+    }
+
+    public void ForceSetMaterial(Material newMaterial, TileState newState)
+    {
+        SaveCurrentState();
+        currentMaterial = newMaterial;
+        currentState = newState;
+        UpdateRenderer();
+    }
+
+    private void ActivarTile()
+    {
+        switch (currentState)
+        {
+            case TileState.Apagado:
+                break;
+
+            case TileState.Azul:
+                StartCoroutine(ParpadeoYDesactivar());
+                break;
+
+            case TileState.Rojo:
+                gameManager.RestarVida();
+                Debug.Log($"Tile {id} rojo: -1 vida");
+                gameManager.PararYParpadearBarra();
+                break;
+        }
+    }
+
+    public void ApplyOverlayColor(Color color)
+    {
+        if (targetRenderer == null) return;
+        targetRenderer.material.color = color;
+    }
+
+    public void RestoreBaseColor()
+    {
+        if (targetRenderer == null) return;
+
+        if (currentMaterial != null)
+            targetRenderer.material.color = currentMaterial.color;
+    }
+
+    public void ParpadearAlPisar(Material apagadoMat, float duracion = 0.6f)
+    {
+        StartCoroutine(ParpadeoRutina(apagadoMat, duracion));
+    }
+
+    private IEnumerator ParpadeoRutina(Material apagadoMat, float duracion)
+    {
+        if (targetRenderer == null || currentMaterial == null)
+            yield break;
+
+        float intervalo = 0.1f;
+        float tiempo = 0f;
+
+        Material materialOriginal = currentMaterial;
+
+        while (tiempo < duracion)
+        {
+            targetRenderer.material = apagadoMat;
+            yield return new WaitForSeconds(intervalo);
+
+            targetRenderer.material = materialOriginal;
+            yield return new WaitForSeconds(intervalo);
+
+            tiempo += intervalo * 2;
+        }
+
+        targetRenderer.material = materialOriginal;
+    }
+
+    private IEnumerator ParpadeoYDesactivar()
+    {
+        estaParpadeando = true;
+
+        gameManager.AddPunto();
+        Debug.Log($"Tile {id} azul: +1 punto");
+
+        yield return StartCoroutine(ParpadeoRutina(gameManager.Apagat, 0.6f));
+
+        ForceSetMaterial(gameManager.Apagat, TileState.Apagado);
+        gameManager.RemoveBlueTile(this);
+
+        estaParpadeando = false;
+    }
+}
