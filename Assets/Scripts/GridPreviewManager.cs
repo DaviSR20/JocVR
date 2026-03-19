@@ -21,6 +21,7 @@ public class GridPreviewManager : MonoBehaviour
     [FormerlySerializedAs("pcGameManager")] [Header("Referencias de Escena")]
     public PcGameManager PcGameManager; // Arrastra aquí el objeto con PcGameManager
     public GameObject canvasMenu;
+    public GameObject Laser;
 
     [Header("Locomoción (OVRInteractionRig)")]
     [Tooltip("Arrastra aquí el objeto 'Locomotion' que está dentro de tu OVRInteractionRig")]
@@ -139,6 +140,9 @@ public class GridPreviewManager : MonoBehaviour
 
             // 3. Apagamos la UI
             if (canvasMenu != null) canvasMenu.SetActive(false);
+            
+            // 3. Apagamos Laser
+            if (Laser != null) Laser.SetActive(false);
 
             // 4. Por último, deshabilitamos este script para bloquear la edición
             this.enabled = false;
