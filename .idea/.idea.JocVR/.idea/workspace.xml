@@ -6,17 +6,11 @@
   <component name="ChangeListManager">
     <list default="true" id="ba6d6c1f-b147-4175-b7a8-c6484de6c65a" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.JocVR/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.JocVR/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Oculus/OculusProjectConfig.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Oculus/OculusProjectConfig.asset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scenes/Countdown.unity" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scenes/Countdown.unity.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scenes/JocVR.unity" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scenes/JocVR.unity.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scenes/Menu 1.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/Menu 1.unity" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Resources/OculusRuntimeSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Resources/OculusRuntimeSettings.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scenes/Juego1.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/Juego1.unity" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/EscenarioLoader.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/EscenarioLoader.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scripts/GridPreviewManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/GridPreviewManager.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Videos/Video1.renderTexture" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Videos/Video1.renderTexture" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Videos/Video2.renderTexture" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Videos/Video2.renderTexture" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/XR/Settings/OpenXRPackageSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/XR/Settings/OpenXRPackageSettings.asset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ProjectSettings/EditorBuildSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/EditorBuildSettings.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/tile_scripts/PcGameManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/tile_scripts/PcGameManager.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -118,7 +112,7 @@
       <workItem from="1770276367670" duration="8997000" />
       <workItem from="1770711855107" duration="988000" />
       <workItem from="1773821294589" duration="828000" />
-      <workItem from="1773903961465" duration="1097000" />
+      <workItem from="1773903961465" duration="5236000" />
     </task>
     <servers />
   </component>

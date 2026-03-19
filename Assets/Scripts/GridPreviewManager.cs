@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.Serialization;
 
 public class GridPreviewManager : MonoBehaviour
 {
@@ -16,6 +17,10 @@ public class GridPreviewManager : MonoBehaviour
     [Header("Parámetros de edición")]
     public float scaleSpeed = 0.5f;
     public float rotationSpeed = 90f;
+    
+    [FormerlySerializedAs("pcGameManager")] [Header("Referencias de Escena")]
+    public PcGameManager PcGameManager; // Arrastra aquí el objeto con PcGameManager
+    public GameObject canvasMenu;
 
     [Header("Locomoción (OVRInteractionRig)")]
     [Tooltip("Arrastra aquí el objeto 'Locomotion' que está dentro de tu OVRInteractionRig")]
@@ -123,13 +128,20 @@ public class GridPreviewManager : MonoBehaviour
     {
         if (previewRoot != null)
         {
-            PlayerPrefs.SetFloat("EscenarioPosX", previewRoot.transform.position.x);
-            PlayerPrefs.SetFloat("EscenarioPosY", previewRoot.transform.position.y);
-            PlayerPrefs.SetFloat("EscenarioPosZ", previewRoot.transform.position.z);
-            PlayerPrefs.SetFloat("EscenarioRotY", previewRoot.transform.eulerAngles.y);
-            PlayerPrefs.SetFloat("EscenarioEscala", previewRoot.transform.localScale.x);
-            PlayerPrefs.Save();
-            SceneManager.LoadScene("Juego1");
+            // 1. Primero avisamos al juego que empiece
+            if (PcGameManager != null)
+            {
+                PcGameManager.IniciarJuego();
+            }
+
+            // 2. Quitamos el modo edición (reactiva movimiento)
+            SetEditMode(false);
+
+            // 3. Apagamos la UI
+            if (canvasMenu != null) canvasMenu.SetActive(false);
+
+            // 4. Por último, deshabilitamos este script para bloquear la edición
+            this.enabled = false;
         }
     }
 
