@@ -129,7 +129,7 @@ public class GridPreviewManager : MonoBehaviour
             PlayerPrefs.SetFloat("EscenarioRotY", previewRoot.transform.eulerAngles.y);
             PlayerPrefs.SetFloat("EscenarioEscala", previewRoot.transform.localScale.x);
             PlayerPrefs.Save();
-            SceneManager.LoadScene("Countdown");
+            SceneManager.LoadScene("Juego1");
         }
     }
 
