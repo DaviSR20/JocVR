@@ -63,7 +63,7 @@ public class GridPreviewManager : MonoBehaviour
         }
 
         // Botón X (Izquierdo): Alternar modo edición
-        if (OVRInput.GetDown(OVRInput.Button.One, OVRInput.Controller.LTouch))
+        if (OVRInput.GetDown(OVRInput.Button.Two, OVRInput.Controller.RTouch))
         {
             SetEditMode(!editMode);
         }
