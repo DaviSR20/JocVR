@@ -205,8 +205,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 24679977}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 0, y: 15, z: 0}
+  m_LocalRotation: {x: -0.6851322, y: -0.0050611203, z: 0.0037918394, w: -0.7283913}
+  m_LocalPosition: {x: 2.9410222, y: 25.609375, z: -2.3477802}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1558,7 +1558,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &240684495
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2373,7 +2373,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9f6f89801fcee104c8360ee554f5115f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GridManager
-  tilePrefab: {fileID: 7714110243084050369, guid: 279ed3d77b4da8942a3ea482686977cd, type: 3}
+  tilePrefab: {fileID: 7714110243084050369, guid: e524ac10b3419604eb4f60a9e8c70169, type: 3}
   borderPrefab: {fileID: 5144766011436781412, guid: 01caa8f5f3340d84bbf7a9c205f2d9f2, type: 3}
   cornerPrefab: {fileID: 321301004096501704, guid: 8407209c34b86774ca2c0443b3c1696a, type: 3}
   tileSize: 1.1
@@ -5558,7 +5558,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &873543001
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12457,9 +12457,9 @@ MonoBehaviour:
   RojoBarra: {fileID: 2100000, guid: 41a8713bedbd9eb4184b34db7516798a, type: 2}
   tiempoMovimientoBarra: 1
   GrisParpadeo: {fileID: -6629797300637803691, guid: f8b3527c1d497cc4982122cde9b9d038, type: 3}
+  botonInicioCanvas: {fileID: 683585228}
   vidas: 3
   textoVidas: {fileID: 0}
-  botonInicioCanvas: {fileID: 0}
 --- !u!4 &1973682937
 Transform:
   m_ObjectHideFlags: 0

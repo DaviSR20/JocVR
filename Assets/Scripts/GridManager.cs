@@ -159,7 +159,7 @@ public class GridManager : MonoBehaviour
     {
         float halfGrid = (size * tileSize) / 2f;
         float textHeight = tileSize * 0.6f;   // altura del texto
-        float offsetFromBorder = borderInset - 5f; // separación extra
+        float offsetFromBorder = borderInset - 4f; // separación extra
 
         // ARRIBA
         Vector3 arribaPos = new Vector3(0, textHeight, halfGrid + offsetFromBorder);
@@ -236,5 +236,14 @@ public class GridManager : MonoBehaviour
 
         transform.localPosition -= localOffset;
         Debug.Log($"Grid centrada en el core: {transform.localPosition}");
+    }
+    void Update()
+    {
+        // Generar grid con la tecla G
+        if (Input.GetKeyDown(KeyCode.G))
+        {
+            Debug.Log("Tecla G -> Generar Grid");
+            GenerateGrid(6);
+        }
     }
 }

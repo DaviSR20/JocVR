@@ -22,13 +22,15 @@ public class GameManager : MonoBehaviour
     private int direccionBarra = 1; // 1 = hacia abajo, -1 = hacia arriba
     private bool barraPausada = false;
     public Material GrisParpadeo;
-
+    
+    [Header("Botón de inicio")]
+    public GameObject botonInicioCanvas;
+    
     [Header("Vidas")]
     public int vidas = 3;
     public TextMeshPro textoVidas;
 
-    [Header("Botón de inicio")] // NUEVO
-    public GameObject botonInicioCanvas; // NUEVO: Canvas con botón para iniciar
+    public int FilaActualBarra => filaActualBarra;
 
     private Dictionary<string, TileController> tiles = new Dictionary<string, TileController>();
     private List<TileController> blueTiles = new List<TileController>();
@@ -37,12 +39,12 @@ public class GameManager : MonoBehaviour
     private int filaActualBarra = 0;
     private bool rondaActiva = false;
     private int puntos = 0;
-
+    private Coroutine barraCoroutine;
+    
     void Awake()
     {
         Instance = this;
     }
-
     public void AddPunto()
     {
         puntos += 1;
@@ -67,25 +69,26 @@ public class GameManager : MonoBehaviour
         if (textoVidas != null)
             textoVidas.text = "Vidas: " + vidas;
     }
-
     void Start()
     {
-        // NO iniciar el juego todavía
         GridManagerWithBorders.ActualizarTextoVidas(vidas);
 
-        // Activar canvas de inicio // NUEVO
+        // Mostrar botón inicio
         if (botonInicioCanvas != null)
             botonInicioCanvas.SetActive(true);
     }
-
     void Update()
     {
         if (Input.GetMouseButtonDown(0))
         {
             DetectarClick();
         }
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            Debug.Log("Space -> Start Game");
+            IniciarJuegoDesdeBoton();
+        }
     }
-
     public void RestarVida()
     {
         vidas--;
@@ -100,7 +103,6 @@ public class GameManager : MonoBehaviour
             rondaActiva = false;
         }
     }
-
     void DetectarClick()
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -116,25 +118,6 @@ public class GameManager : MonoBehaviour
             }
         }
     }
-
-    // NUEVO: Método llamado desde el botón del canvas
-    public void IniciarJuegoDesdeBoton()
-    {
-        // Desactivar el canvas
-        if (botonInicioCanvas != null)
-            botonInicioCanvas.SetActive(false);
-
-        // Esperar 5 segundos antes de iniciar el juego
-        StartCoroutine(EsperarYEmpezarJuego());
-    }
-
-    // NUEVO
-    private IEnumerator EsperarYEmpezarJuego()
-    {
-        yield return new WaitForSeconds(5f); // Espera 5 segundos
-        StartCoroutine(StartGame());
-    }
-
     IEnumerator StartGame()
     {
         tiles.Clear();
@@ -168,15 +151,19 @@ public class GameManager : MonoBehaviour
 
         filaActualBarra = 0;
 
-        StartCoroutine(MoverBarra());
-    }
+        // Evitar múltiples coroutines de la barra
+        if (barraCoroutine != null)
+            StopCoroutine(barraCoroutine);
 
+        barraCoroutine = StartCoroutine(MoverBarra());
+    }
+    
     void GenerateBlueTiles(int cantidad)
     {
         blueTiles.Clear();
 
         var candidatos = tiles.Values
-            .Where(t => !barraActual.Contains(t))
+            .Where(t => !barraActual.Contains(t)) // 🚫 ignorar los que están en la barra
             .OrderBy(x => Random.value)
             .Take(cantidad);
 
@@ -186,7 +173,6 @@ public class GameManager : MonoBehaviour
             blueTiles.Add(tile);
         }
     }
-
     // ===============================
     // MOVIMIENTO DE BARRA
     // ===============================
@@ -215,7 +201,6 @@ public class GameManager : MonoBehaviour
             yield return new WaitForSeconds(tiempoMovimientoBarra);
         }
     }
-
     IEnumerator ParpadeoBarra()
     {
         barraPausada = true;
@@ -247,7 +232,6 @@ public class GameManager : MonoBehaviour
 
         barraPausada = false;
     }
-
     public void PararYParpadearBarra()
     {
         StartCoroutine(ParpadeoBarra());
@@ -255,6 +239,7 @@ public class GameManager : MonoBehaviour
 
     void PintarFila(int fila)
     {
+        // Restaurar fila anterior
         foreach (var tile in barraActual)
         {
             tile.RestorePreviousState();
@@ -262,32 +247,33 @@ public class GameManager : MonoBehaviour
 
         barraActual.Clear();
 
+        // Pintar nueva fila
         foreach (var tile in tiles.Values)
         {
             if (tile.id.y == fila)
             {
                 if (tile.EstaParpadeando)
                     continue;
-
+                //Solo pintamos los que no sean azul
                 tile.SaveCurrentState();
                 tile.ForceSetMaterial(RojoBarra, TileController.TileState.Rojo);
                 barraActual.Add(tile);
             }
         }
     }
-
     void ResetAllTiles()
     {
         foreach (var tile in tiles.Values)
         {
+            // Fuerza a apagado todos los tiles
             tile.ForceSetMaterial(Apagat, TileController.TileState.Apagado);
         }
 
+        // Limpiamos las listas
         blueTiles.Clear();
         barraActual.Clear();
         filaActualBarra = 0;
     }
-
     // ===============================
     // EVENTO TILE
     // ===============================
@@ -301,7 +287,6 @@ public class GameManager : MonoBehaviour
 
         StartNewRound();
     }
-
     public void RegisterTile(TileController tile)
     {
         string key = tile.id.ToString();
@@ -309,11 +294,11 @@ public class GameManager : MonoBehaviour
         if (!tiles.ContainsKey(key))
             tiles.Add(key, tile);
     }
-
     IEnumerator ResetAutomatico()
     {
         rondaActiva = false;
 
+        // Restaurar posibles rojos activos
         foreach (var tile in barraActual)
             tile.RestorePreviousState();
 
@@ -327,7 +312,6 @@ public class GameManager : MonoBehaviour
 
         StartNewRound();
     }
-
     public void RemoveBlueTile(TileController tile)
     {
         if (blueTiles.Contains(tile))
@@ -336,7 +320,38 @@ public class GameManager : MonoBehaviour
         if (blueTiles.Count <= 0)
         {
             Debug.Log("Ronda completada");
-            GenerateBlueTiles(5);
+
+            GenerateBlueTiles(5); // genera nuevos azules
         }
     }
+    public bool BarraEstaEnFila(int filaTile)
+    {
+        int filaReal = filaActualBarra - direccionBarra;
+
+        // Ajuste por rebote en bordes
+        if (filaActualBarra == 0 || filaActualBarra == gridSize - 1)
+            filaReal = filaActualBarra;
+
+        return filaReal == filaTile;
+    }
+    public void AgregarTileABarra(TileController tile)
+    {
+        if (!barraActual.Contains(tile))
+            barraActual.Add(tile);
+    }
+    // Método llamado desde el botón
+    public void IniciarJuegoDesdeBoton()
+    {
+        if (botonInicioCanvas != null)
+            botonInicioCanvas.SetActive(false);
+
+        StartCoroutine(EsperarYEmpezarJuego());
+    }
+
+    private IEnumerator EsperarYEmpezarJuego()
+    {
+        yield return new WaitForSeconds(5f);
+        StartCoroutine(StartGame());
+    }
+    
 }
