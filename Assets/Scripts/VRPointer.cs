@@ -20,8 +20,8 @@ public class VRPointer : MonoBehaviour
         {
             line.SetPosition(1, hit.point);
 
-            MenuVR button = hit.collider.GetComponent<MenuVR>();
-
+            MenuVR button = hit.collider.GetComponentInParent<MenuVR>();
+            Debug.Log(hit.collider.name);
             if (button != null)
             {
                 if (lastButton != button)
