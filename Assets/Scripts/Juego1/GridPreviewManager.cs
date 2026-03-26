@@ -1,3 +1,4 @@
+using System.Collections; // Necesario para las corrutinas de vibración
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
@@ -32,6 +33,9 @@ public class GridPreviewManager : MonoBehaviour
 
     private GameObject previewRoot;
     private bool editMode = false;
+    
+    // Nueva variable para recordar si el gatillo estaba pulsado en el frame anterior
+    private bool wasTriggerHeld = false; 
 
     void Update()
     {
@@ -62,30 +66,71 @@ public class GridPreviewManager : MonoBehaviour
             }
         }
 
-        // Botón X (Izquierdo): Alternar modo edición
+        // Botón B (Derecho): Alternar modo edición
         if (OVRInput.GetDown(OVRInput.Button.Two, OVRInput.Controller.RTouch))
         {
             SetEditMode(!editMode);
         }
     }
 
+    // =====================================================
+    // LÓGICA DE EDICIÓN CON GATILLO MODIFICADOR Y VIBRACIÓN
+    // =====================================================
     void HandleEditActions()
     {
         Vector2 input = OVRInput.Get(OVRInput.Axis2D.PrimaryThumbstick, OVRInput.Controller.RTouch);
+        bool isTriggerHeld = OVRInput.Get(OVRInput.Button.PrimaryIndexTrigger, OVRInput.Controller.RTouch);
 
-        // Escalar (Vertical)
-        if (Mathf.Abs(input.y) > 0.1f)
+        // --- LÓGICA DE HAPTIC FEEDBACK ---
+        // Si acaba de pulsar el gatillo (Entra en Modo Escala)
+        if (isTriggerHeld && !wasTriggerHeld)
         {
-            float scaleAmount = input.y * scaleSpeed * Time.deltaTime;
-            previewRoot.transform.localScale += Vector3.one * scaleAmount;
-            if (previewRoot.transform.localScale.x < 0.01f) previewRoot.transform.localScale = Vector3.one * 0.01f;
+            StartCoroutine(VibrateController(0.1f, 1f, 0.8f, OVRInput.Controller.RTouch));
         }
+        // Si acaba de soltar el gatillo (Vuelve a Modo Rotación)
+        else if (!isTriggerHeld && wasTriggerHeld)
+        {
+            StartCoroutine(VibrateController(0.1f, 0.5f, 0.3f, OVRInput.Controller.RTouch));
+        }
+        
+        // Guardamos el estado del gatillo para el próximo frame
+        wasTriggerHeld = isTriggerHeld;
+        // ----------------------------------
 
-        // Rotar (Horizontal)
         if (Mathf.Abs(input.x) > 0.1f)
         {
-            previewRoot.transform.Rotate(Vector3.up, -input.x * rotationSpeed * Time.deltaTime, Space.World);
+            if (isTriggerHeld)
+            {
+                // MODO ESCALAR
+                float scaleAmount = input.x * scaleSpeed * Time.deltaTime;
+                previewRoot.transform.localScale += Vector3.one * scaleAmount;
+                
+                if (previewRoot.transform.localScale.x < 0.01f) 
+                {
+                    previewRoot.transform.localScale = Vector3.one * 0.01f;
+                }
+            }
+            else
+            {
+                // MODO ROTAR
+                previewRoot.transform.Rotate(Vector3.up, -input.x * rotationSpeed * Time.deltaTime, Space.World);
+            }
         }
+    }
+
+    // =====================================================
+    // CORRUTINA PARA CONTROLAR LA VIBRACIÓN
+    // =====================================================
+    private IEnumerator VibrateController(float duration, float frequency, float amplitude, OVRInput.Controller controller)
+    {
+        // Encendemos el motor de vibración
+        OVRInput.SetControllerVibration(frequency, amplitude, controller);
+        
+        // Esperamos los segundos indicados
+        yield return new WaitForSeconds(duration);
+        
+        // Apagamos el motor de vibración
+        OVRInput.SetControllerVibration(0, 0, controller);
     }
 
     // =====================================================
@@ -129,22 +174,11 @@ public class GridPreviewManager : MonoBehaviour
     {
         if (previewRoot != null)
         {
-            // 1. Primero avisamos al juego que empiece
-            if (PcGameManager != null)
-            {
-                PcGameManager.IniciarJuego();
-            }
-
-            // 2. Quitamos el modo edición (reactiva movimiento)
+            if (PcGameManager != null) PcGameManager.IniciarJuego();
             SetEditMode(false);
-
-            // 3. Apagamos la UI
             if (canvasMenu != null) canvasMenu.SetActive(false);
-            
-            // 3. Apagamos Laser
             if (Laser != null) Laser.SetActive(false);
-
-            // 4. Por último, deshabilitamos este script para bloquear la edición
+            
             this.enabled = false;
         }
     }
@@ -158,17 +192,14 @@ public class GridPreviewManager : MonoBehaviour
     {
         if (passthroughLayer != null)
         {
-            // 1. Alternamos el componente
             passthroughLayer.enabled = !passthroughLayer.enabled;
-            
-            // 2. Ajustamos la cámara para que el fondo sea transparente
             Camera cam = Camera.main;
             if (cam != null)
             {
                 if (passthroughLayer.enabled)
                 {
                     cam.clearFlags = CameraClearFlags.SolidColor;
-                    cam.backgroundColor = new Color(0, 0, 0, 0); // Transparente
+                    cam.backgroundColor = new Color(0, 0, 0, 0); 
                 }
                 else
                 {
