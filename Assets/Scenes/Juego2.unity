@@ -119,6 +119,7 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+<<<<<<< Updated upstream
 --- !u!1 &24679977
 GameObject:
   m_ObjectHideFlags: 0
@@ -1002,6 +1003,8 @@ Transform:
   m_Children: []
   m_Father: {fileID: 723477232}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+=======
+>>>>>>> Stashed changes
 --- !u!1 &202373293
 GameObject:
   m_ObjectHideFlags: 0
@@ -5789,8 +5792,13 @@ Canvas:
   m_GameObject: {fileID: 885445471}
   m_Enabled: 1
   serializedVersion: 3
+<<<<<<< Updated upstream
   m_RenderMode: 2
   m_Camera: {fileID: 24679979}
+=======
+  m_RenderMode: 0
+  m_Camera: {fileID: 0}
+>>>>>>> Stashed changes
   m_PlaneDistance: 100
   m_PixelPerfect: 0
   m_ReceivesEvents: 1
@@ -6139,6 +6147,7 @@ Transform:
   - {fileID: 1122247247}
   m_Father: {fileID: 2072278298}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+<<<<<<< Updated upstream
 --- !u!95 &975381088
 Animator:
   serializedVersion: 7
@@ -9492,6 +9501,8 @@ Transform:
   - {fileID: 1728101513}
   m_Father: {fileID: 1900993948}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+=======
+>>>>>>> Stashed changes
 --- !u!1 &1472827176
 GameObject:
   m_ObjectHideFlags: 0
@@ -12460,6 +12471,7 @@ MonoBehaviour:
   botonInicioCanvas: {fileID: 683585228}
   vidas: 3
   textoVidas: {fileID: 0}
+  botonInicioCanvas: {fileID: 0}
 --- !u!4 &1973682937
 Transform:
   m_ObjectHideFlags: 0
@@ -13423,8 +13435,6 @@ Transform:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
-  - {fileID: 24679980}
-  - {fileID: 1419675129}
   - {fileID: 1973682937}
   - {fileID: 885445475}
   - {fileID: 579625299}
