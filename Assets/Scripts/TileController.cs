@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 using System.Collections;
 
@@ -57,7 +56,7 @@ public class TileController : MonoBehaviour
             if (panelTransform != null)
                 targetRenderer = panelTransform.GetComponent<Renderer>();
             else
-                Debug.LogError("No se encontró el hijo 'panel' en el prefab.");
+                Debug.LogError("No se encontr  el hijo 'panel' en el prefab.");
         }
 
         gameManager = GameManager.Instance;

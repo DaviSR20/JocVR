@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class Tile_test : MonoBehaviour
@@ -13,92 +14,149 @@ public class Tile_test : MonoBehaviour
             this.x = x;
             this.y = y;
         }
-
-        public override string ToString()
-        {
-            return $"({x}, {y})";
-        }
     }
 
-    [Header("Panel")]
+    [Header("Renderers")]
     [SerializeField] private Renderer panelRenderer;
-
-    [Header("Materiales")]
-    [SerializeField] private Material Apagat;
-    [SerializeField] private Material Verd;
-    [SerializeField] private Material Blau;
-    [SerializeField] private Material Vermell;
-    [SerializeField] private Material Rosa;
+    [SerializeField] private Renderer quadRenderer;
 
     [Header("ID del Tile")]
     public TokenID id;
 
+    private PcGameManager gameManager;
     private Material currentMaterial;
+
+    private Coroutine blinkCoroutine;
+    private Coroutine temporalCoroutine;
+
+    private MaterialPropertyBlock panelBlock;
+    private MaterialPropertyBlock quadBlock;
+
+    private static readonly int GlowStrengthID = Shader.PropertyToID("Glow Strength");
+
     private bool playerDentro = false;
 
-    private PcGameManager gameManager;
+    private void Awake()
+    {
+        panelBlock = new MaterialPropertyBlock();
+        quadBlock = new MaterialPropertyBlock();
+    }
 
     private void Start()
     {
         if (panelRenderer == null)
             panelRenderer = transform.Find("panel")?.GetComponent<Renderer>();
 
+        if (quadRenderer == null)
+            quadRenderer = transform.Find("Quad")?.GetComponent<Renderer>();
+
         gameManager = FindObjectOfType<PcGameManager>();
-        if (gameManager == null)
-            Debug.LogError("No se ha encontrado GameManager en la escena");
 
         if (gameManager != null)
         {
             currentMaterial = gameManager.GetMaterialForTile(id);
-            if (panelRenderer != null && currentMaterial != null)
-                panelRenderer.material = currentMaterial;
+            SetMaterial(currentMaterial);
         }
+
+        SetGlow(1f);
     }
 
-    private void OnTriggerEnter(Collider other)
-    {
-        if (other.CompareTag("Pies") && !playerDentro)
-        {
-            playerDentro = true;
+    // ---------------- MATERIAL ----------------
 
-            if (gameManager != null)
-                gameManager.TilePressed(id, this);
-
-            Debug.Log($"Player ENTRA en Tile {id} con material {currentMaterial.name}");
-        }
-    }
-
-    private void OnTriggerExit(Collider other)
-    {
-        if (other.CompareTag("Pies") && playerDentro)
-        {
-            playerDentro = false;
-
-            if (gameManager != null)
-                gameManager.TileReleased(id, this);
-
-            Debug.Log($"Player SALE de Tile {id} con material {currentMaterial.name}");
-        }
-    }
-
-    // M�todo para que GameManager cambie el material
     public void SetMaterial(Material newMaterial)
     {
         currentMaterial = newMaterial;
-        if (panelRenderer != null && currentMaterial != null)
-            panelRenderer.material = currentMaterial;
+
+        if (panelRenderer != null)
+            panelRenderer.sharedMaterial = currentMaterial;
+
+        if (quadRenderer != null && gameManager != null)
+            quadRenderer.sharedMaterial = gameManager.GetQuadMaterial(newMaterial);
     }
 
-    // M�todo para obtener el material actual
     public Material GetMaterialActual()
     {
         return currentMaterial;
     }
 
-    // M�todos para acceder a los materiales
-    public Material GetApagat() => Apagat;
-    public Material GetVerd() => Verd;
-    public Material GetBlau() => Blau;
-    public Material GetVermell() => Vermell;
-    public Material GetRosa() => Rosa;
+    // ---------------- GLOW ----------------
+
+    public void SetGlow(float value)
+    {
+        if (panelRenderer != null)
+        {
+            panelRenderer.GetPropertyBlock(panelBlock);
+            panelBlock.SetFloat(GlowStrengthID, value);
+            panelRenderer.SetPropertyBlock(panelBlock);
+        }
+
+        if (quadRenderer != null)
+        {
+            quadRenderer.GetPropertyBlock(quadBlock);
+            quadBlock.SetFloat(GlowStrengthID, value);
+            quadRenderer.SetPropertyBlock(quadBlock);
+        }
+    }
+
+    // ---------------- TRIGGERS VR ----------------
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (!playerDentro)
+        {
+            playerDentro = true;
+
+            if (gameManager != null)
+                gameManager.TilePressed(id, this);
+        }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (playerDentro)
+        {
+            playerDentro = false;
+
+            if (gameManager != null)
+                gameManager.TileReleased(id, this);
+        }
+    }
+
+    // ---------------- BLINK ----------------
+
+    public void StartBlink(float duration, float intensity)
+    {
+        if (blinkCoroutine != null)
+            StopCoroutine(blinkCoroutine);
+
+        blinkCoroutine = StartCoroutine(BlinkRoutine(duration, intensity));
+    }
+
+    private IEnumerator BlinkRoutine(float duration, float intensity)
+    {
+        SetGlow(intensity);
+
+        yield return new WaitForSeconds(duration);
+
+        SetGlow(1f);
+
+        if (gameManager != null)
+            SetMaterial(gameManager.Apagat);
+    }
+
+    // ---------------- TEMPORAL ----------------
+
+    public void SetTemporalCoroutine(Coroutine c)
+    {
+        temporalCoroutine = c;
+    }
+
+    public void CancelTemporal()
+    {
+        if (temporalCoroutine != null)
+        {
+            StopCoroutine(temporalCoroutine);
+            temporalCoroutine = null;
+        }
+    }
 }
