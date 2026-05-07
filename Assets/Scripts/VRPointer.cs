@@ -4,24 +4,70 @@ public class VRPointer : MonoBehaviour
 {
     private LineRenderer line;
     private MenuVR lastButton;
-    public float distanciaMax = 5f;
 
-    void Start()
+    [Header("Laser")]
+    public float distanciaMax = 5f;
+    public float lineWidth = 0.01f;
+
+    [Header("Color")]
+    public Color startColor = Color.red;
+    public Color endColor = Color.red;
+
+    void Awake()
+    {
+        CrearLaser();
+    }
+
+    void CrearLaser()
     {
         line = GetComponent<LineRenderer>();
+
+        // Si no existe -> crearlo automáticamente
+        if (line == null)
+        {
+            line = gameObject.AddComponent<LineRenderer>();
+        }
+
+        // Configuración básica
+        line.positionCount = 2;
+
+        line.startWidth = lineWidth;
+        line.endWidth = lineWidth;
+
+        line.material = new Material(
+            Shader.Find("Unlit/Color"));
+
+        line.startColor = startColor;
+        line.endColor = endColor;
+
+        line.useWorldSpace = true;
+
+        line.shadowCastingMode =
+            UnityEngine.Rendering.ShadowCastingMode.Off;
+
+        line.receiveShadows = false;
     }
 
     void Update()
     {
+        if (line == null)
+            return;
+
         line.SetPosition(0, transform.position);
 
         RaycastHit hit;
-        if (Physics.Raycast(transform.position, transform.forward, out hit, distanciaMax))
+
+        if (Physics.Raycast(
+            transform.position,
+            transform.forward,
+            out hit,
+            distanciaMax))
         {
             line.SetPosition(1, hit.point);
 
-            MenuVR button = hit.collider.GetComponentInParent<MenuVR>();
-            Debug.Log(hit.collider.name);
+            MenuVR button =
+                hit.collider.GetComponentInParent<MenuVR>();
+
             if (button != null)
             {
                 if (lastButton != button)
@@ -30,27 +76,32 @@ public class VRPointer : MonoBehaviour
                         lastButton.OnHoverExit();
 
                     button.OnHoverEnter();
+
                     lastButton = button;
                 }
             }
             else
             {
-                if (lastButton != null)
-                {
-                    lastButton.OnHoverExit();
-                    lastButton = null;
-                }
+                ClearHover();
             }
         }
         else
         {
-            line.SetPosition(1, transform.position + transform.forward * distanciaMax);
+            line.SetPosition(
+                1,
+                transform.position +
+                transform.forward * distanciaMax);
 
-            if (lastButton != null)
-            {
-                lastButton.OnHoverExit();
-                lastButton = null;
-            }
+            ClearHover();
+        }
+    }
+
+    void ClearHover()
+    {
+        if (lastButton != null)
+        {
+            lastButton.OnHoverExit();
+            lastButton = null;
         }
     }
 }

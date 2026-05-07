@@ -80,7 +80,7 @@ public class TileController : XRBaseInteractable
     }
     private void OnTriggerEnter(Collider other)
     {
-        if (!other.CompareTag("Player")) return;
+        if (!other.CompareTag("Pies")) return;
         if (playerDentro) return;
 
         playerDentro = true;
@@ -89,7 +89,7 @@ public class TileController : XRBaseInteractable
 
     private void OnTriggerExit(Collider other)
     {
-        if (!other.CompareTag("Player")) return;
+        if (!other.CompareTag("Pies")) return;
         playerDentro = false;
     }
 
