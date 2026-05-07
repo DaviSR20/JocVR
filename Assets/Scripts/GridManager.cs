@@ -30,7 +30,12 @@ public class GridManager : MonoBehaviour
     }
 
     public void GenerateGrid(int size)
-    {
+    {   
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.gridSize = size;
+        }
+        
         if (tilePrefab == null)
         {
             Debug.LogError("No se ha asignado tilePrefab");

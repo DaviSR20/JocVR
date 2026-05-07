@@ -122,6 +122,8 @@ public class GameManager : MonoBehaviour
     }
     IEnumerator StartGame()
     {
+        Debug.Log("GRID SIZE = " + gridSize);
+
         tiles.Clear();
         GridManagerWithBorders.GenerateGrid(gridSize);
         yield return null;
