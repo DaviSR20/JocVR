@@ -3,6 +3,7 @@ using TMPro;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine.XR;
 
 public class GameManager : MonoBehaviour
 {
@@ -29,7 +30,10 @@ public class GameManager : MonoBehaviour
     [Header("Vidas")]
     public int vidas = 3;
     public TextMeshPro textoVidas;
-
+    
+    [Header("VR")]
+    public Transform vrController;
+    public float vrRayDistance = 10f;
     public int FilaActualBarra => filaActualBarra;
 
     private Dictionary<string, TileController> tiles = new Dictionary<string, TileController>();
@@ -79,10 +83,8 @@ public class GameManager : MonoBehaviour
     }
     void Update()
     {
-        if (Input.GetMouseButtonDown(0))
-        {
-            DetectarClick();
-        }
+        DetectarInputVR();
+
         if (Input.GetKeyDown(KeyCode.Space))
         {
             Debug.Log("Space -> Start Game");
@@ -353,5 +355,33 @@ public class GameManager : MonoBehaviour
         yield return new WaitForSeconds(5f);
         StartCoroutine(StartGame());
     }
-    
+    void DetectarInputVR()
+    {
+        InputDevice rightHand =
+            InputDevices.GetDeviceAtXRNode(XRNode.RightHand);
+
+        bool triggerPressed;
+
+        if (rightHand.TryGetFeatureValue(CommonUsages.triggerButton,
+                out triggerPressed)
+            && triggerPressed)
+        {
+            Ray ray = new Ray(
+                vrController.position,
+                vrController.forward);
+
+            RaycastHit hit;
+
+            if (Physics.Raycast(ray, out hit, vrRayDistance))
+            {
+                TileController tile =
+                    hit.collider.GetComponent<TileController>();
+
+                if (tile != null)
+                {
+                    tile.ActivarDesdeClick();
+                }
+            }
+        }
+    }
 }

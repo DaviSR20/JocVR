@@ -1,7 +1,9 @@
 using UnityEngine;
 using System.Collections;
+using UnityEngine.XR.Interaction.Toolkit;
+using UnityEngine.XR.Interaction.Toolkit.Interactables;
 
-public class TileController : MonoBehaviour
+public class TileController : XRBaseInteractable
 {
     private Material previousMaterial;
     private TileState previousState;
@@ -70,7 +72,12 @@ public class TileController : MonoBehaviour
             baseColor = targetRenderer.material.color;
         }
     }
+    protected override void OnSelectEntered(SelectEnterEventArgs args)
+    {
+        base.OnSelectEntered(args);
 
+        ActivarDesdeClick();
+    }
     private void OnTriggerEnter(Collider other)
     {
         if (!other.CompareTag("Player")) return;
