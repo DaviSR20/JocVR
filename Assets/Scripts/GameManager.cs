@@ -34,6 +34,9 @@ public class GameManager : MonoBehaviour
     [Header("VR")]
     public Transform vrController;
     public float vrRayDistance = 10f;
+    [Header("Canvases")]
+    public GameObject canvasGameOver;
+    public GameObject canvasSeleccionGrid;
     public int FilaActualBarra => filaActualBarra;
 
     private Dictionary<string, TileController> tiles = new Dictionary<string, TileController>();
@@ -101,8 +104,7 @@ public class GameManager : MonoBehaviour
 
         if (vidas <= 0)
         {
-            Debug.Log("GAME OVER");
-            rondaActiva = false;
+            StopGame();
         }
     }
     void DetectarClick()
@@ -385,5 +387,73 @@ public class GameManager : MonoBehaviour
                 }
             }
         }
+    }
+    public void VolverMenuGrid()
+    {
+        // Ocultar Game Over
+        if (canvasGameOver != null)
+        {
+            canvasGameOver.SetActive(false);
+        }
+
+        // Mostrar selección de grid
+        if (canvasSeleccionGrid != null)
+        {
+            canvasSeleccionGrid.SetActive(true);
+        }
+    }
+    public void ReiniciarJuego()
+    {
+        // Ocultar canvas Game Over
+        if (canvasGameOver != null)
+        {
+            canvasGameOver.SetActive(false);
+        }
+
+        // Reiniciar vidas
+        vidas = 3;
+        ActualizarTextoVidas();
+
+        // Reiniciar puntos
+        puntos = 0;
+
+        // Limpiar tablero
+        ResetAllTiles();
+
+        // Empezar partida
+        IniciarJuegoDesdeBoton();
+    }
+    public void StopGame()
+    {
+        rondaActiva = false;
+
+        // Detener barra
+        if (barraCoroutine != null)
+        {
+            StopCoroutine(barraCoroutine);
+            barraCoroutine = null;
+        }
+
+        // Limpiar barra visual
+        foreach (var tile in barraActual)
+        {
+            tile.RestorePreviousState();
+        }
+
+        barraActual.Clear();
+
+        // Texto GAME OVER
+        if (textoVidas != null)
+        {
+            textoVidas.text = "GAME OVER";
+        }
+
+        // Mostrar canvas Game Over
+        if (canvasGameOver != null)
+        {
+            canvasGameOver.SetActive(true);
+        }
+
+        Debug.Log("Juego detenido");
     }
 }
