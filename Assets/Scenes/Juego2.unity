@@ -3851,9 +3851,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
   gridSize: 0
   GridManagerWithBorders: {fileID: 343157954}
-  Apagat: {fileID: 2100000, guid: e1f9e316fbb252144b4757673556a390, type: 2}
-  AzulObjetivo: {fileID: 2100000, guid: d0cf7aa600c8fa94dad0cfcb310383b6, type: 2}
-  RojoBarra: {fileID: 2100000, guid: 41a8713bedbd9eb4184b34db7516798a, type: 2}
+  ApagadoPanelMat: {fileID: 2100000, guid: 0baa6bb5ac43fde44aa734e28e3f0bdd, type: 2}
+  AzulPanelMat: {fileID: 2100000, guid: 27100e47efe3b8f46830faa1c43a0259, type: 2}
+  RojoPanelMat: {fileID: 2100000, guid: 69cada57017096c4f8ebca85c7d6b349, type: 2}
+  ApagadoQuadMat: {fileID: 2100000, guid: 6ba6ec9f7a619c8488c5dedab88f8761, type: 2}
+  AzulQuadMat: {fileID: 2100000, guid: bdd511c02f73f4d44811cfd6e51b5662, type: 2}
+  RojoQuadMat: {fileID: 2100000, guid: d70a255bd201e244d9e6166c0e78a435, type: 2}
   tiempoMovimientoBarra: 1
   GrisParpadeo: {fileID: -6629797300637803691, guid: f8b3527c1d497cc4982122cde9b9d038, type: 3}
   botonInicioCanvas: {fileID: 683585228}

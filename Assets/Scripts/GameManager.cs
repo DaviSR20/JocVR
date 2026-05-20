@@ -13,30 +13,39 @@ public class GameManager : MonoBehaviour
     public int gridSize = 6;
     public GridManager GridManagerWithBorders;
 
-    [Header("Materiales")]
-    public Material Apagat;
-    public Material AzulObjetivo;
-    public Material RojoBarra;
+    [Header("Materiales — Panel")]
+    public Material ApagadoPanelMat;
+    public Material AzulPanelMat;
+    public Material RojoPanelMat;
+
+    [Header("Materiales — Quad (Glow)")]
+    public Material ApagadoQuadMat;
+    public Material AzulQuadMat;
+    public Material RojoQuadMat;
+
+    public Material Apagat => ApagadoPanelMat;
 
     [Header("Barra")]
     public float tiempoMovimientoBarra = 1f;
-    private int direccionBarra = 1; // 1 = hacia abajo, -1 = hacia arriba
+    private int direccionBarra = 1;
     private bool barraPausada = false;
     public Material GrisParpadeo;
-    
+
     [Header("Botón de inicio")]
     public GameObject botonInicioCanvas;
-    
+
     [Header("Vidas")]
     public int vidas = 3;
     public TextMeshPro textoVidas;
-    
+
     [Header("VR")]
     public Transform vrController;
     public float vrRayDistance = 10f;
+
     [Header("Canvases")]
     public GameObject canvasGameOver;
     public GameObject canvasSeleccionGrid;
+
     public int FilaActualBarra => filaActualBarra;
 
     private Dictionary<string, TileController> tiles = new Dictionary<string, TileController>();
@@ -47,11 +56,12 @@ public class GameManager : MonoBehaviour
     private bool rondaActiva = false;
     private int puntos = 0;
     private Coroutine barraCoroutine;
-    
+
     void Awake()
     {
         Instance = this;
     }
+
     public void AddPunto()
     {
         puntos += 1;
@@ -66,9 +76,7 @@ public class GameManager : MonoBehaviour
         ActualizarTextoVidas();
 
         if (vidas <= 0)
-        {
             Debug.Log("Game Over");
-        }
     }
 
     void ActualizarTextoVidas()
@@ -76,14 +84,15 @@ public class GameManager : MonoBehaviour
         if (textoVidas != null)
             textoVidas.text = "Vidas: " + vidas;
     }
+
     void Start()
     {
         GridManagerWithBorders.ActualizarTextoVidas(vidas);
 
-        // Mostrar botón inicio
         if (botonInicioCanvas != null)
             botonInicioCanvas.SetActive(true);
     }
+
     void Update()
     {
         DetectarInputVR();
@@ -94,19 +103,17 @@ public class GameManager : MonoBehaviour
             IniciarJuegoDesdeBoton();
         }
     }
+
     public void RestarVida()
     {
         vidas--;
-
         Debug.Log("Vidas restantes: " + vidas);
-
         GridManagerWithBorders.ActualizarTextoVidas(vidas);
 
         if (vidas <= 0)
-        {
             StopGame();
-        }
     }
+
     void DetectarClick()
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -115,13 +122,11 @@ public class GameManager : MonoBehaviour
         if (Physics.Raycast(ray, out hit))
         {
             TileController tile = hit.collider.GetComponent<TileController>();
-
             if (tile != null)
-            {
                 tile.ActivarDesdeClick();
-            }
         }
     }
+
     IEnumerator StartGame()
     {
         Debug.Log("GRID SIZE = " + gridSize);
@@ -141,7 +146,7 @@ public class GameManager : MonoBehaviour
         foreach (var tile in FindObjectsByType<TileController>(FindObjectsSortMode.None))
         {
             tiles[tile.id.ToString()] = tile;
-            tile.ForceSetMaterial(Apagat, TileController.TileState.Apagado);
+            tile.ForceSetMaterials(ApagadoPanelMat, ApagadoQuadMat, TileController.TileState.Apagado);
         }
     }
 
@@ -157,28 +162,28 @@ public class GameManager : MonoBehaviour
 
         filaActualBarra = 0;
 
-        // Evitar múltiples coroutines de la barra
         if (barraCoroutine != null)
             StopCoroutine(barraCoroutine);
 
         barraCoroutine = StartCoroutine(MoverBarra());
     }
-    
+
     void GenerateBlueTiles(int cantidad)
     {
         blueTiles.Clear();
 
         var candidatos = tiles.Values
-            .Where(t => !barraActual.Contains(t)) // 🚫 ignorar los que están en la barra
+            .Where(t => !barraActual.Contains(t))
             .OrderBy(x => Random.value)
             .Take(cantidad);
 
         foreach (var tile in candidatos)
         {
-            tile.ForceSetMaterial(AzulObjetivo, TileController.TileState.Azul);
+            tile.ForceSetMaterials(AzulPanelMat, AzulQuadMat, TileController.TileState.Azul);
             blueTiles.Add(tile);
         }
     }
+
     // ===============================
     // MOVIMIENTO DE BARRA
     // ===============================
@@ -207,37 +212,36 @@ public class GameManager : MonoBehaviour
             yield return new WaitForSeconds(tiempoMovimientoBarra);
         }
     }
+
     IEnumerator ParpadeoBarra()
     {
         barraPausada = true;
 
         float tiempoTotal = 2f;
-        float intervalo = 0.2f;
-        float contador = 0f;
+        float intervalo   = 0.2f;
+        float contador    = 0f;
 
         while (contador < tiempoTotal)
         {
-            // Gris encima
             foreach (var tile in barraActual)
                 tile.ApplyOverlayColor(GrisParpadeo.color);
 
             yield return new WaitForSeconds(intervalo);
 
-            // Rojo encima
             foreach (var tile in barraActual)
-                tile.ApplyOverlayColor(RojoBarra.color);
+                tile.ApplyOverlayColor(RojoPanelMat.color);
 
             yield return new WaitForSeconds(intervalo);
 
             contador += intervalo * 2;
         }
 
-        // Restaurar material original
         foreach (var tile in barraActual)
             tile.RestoreBaseColor();
 
         barraPausada = false;
     }
+
     public void PararYParpadearBarra()
     {
         StartCoroutine(ParpadeoBarra());
@@ -245,41 +249,35 @@ public class GameManager : MonoBehaviour
 
     void PintarFila(int fila)
     {
-        // Restaurar fila anterior
         foreach (var tile in barraActual)
-        {
             tile.RestorePreviousState();
-        }
 
         barraActual.Clear();
 
-        // Pintar nueva fila
         foreach (var tile in tiles.Values)
         {
             if (tile.id.y == fila)
             {
                 if (tile.EstaParpadeando)
                     continue;
-                //Solo pintamos los que no sean azul
+
                 tile.SaveCurrentState();
-                tile.ForceSetMaterial(RojoBarra, TileController.TileState.Rojo);
+                tile.ForceSetMaterials(RojoPanelMat, RojoQuadMat, TileController.TileState.Rojo);
                 barraActual.Add(tile);
             }
         }
     }
+
     void ResetAllTiles()
     {
         foreach (var tile in tiles.Values)
-        {
-            // Fuerza a apagado todos los tiles
-            tile.ForceSetMaterial(Apagat, TileController.TileState.Apagado);
-        }
+            tile.ForceSetMaterials(ApagadoPanelMat, ApagadoQuadMat, TileController.TileState.Apagado);
 
-        // Limpiamos las listas
         blueTiles.Clear();
         barraActual.Clear();
         filaActualBarra = 0;
     }
+
     // ===============================
     // EVENTO TILE
     // ===============================
@@ -288,36 +286,32 @@ public class GameManager : MonoBehaviour
     IEnumerator RestartRound()
     {
         rondaActiva = false;
-
         yield return new WaitForSeconds(1f);
-
         StartNewRound();
     }
+
     public void RegisterTile(TileController tile)
     {
         string key = tile.id.ToString();
-
         if (!tiles.ContainsKey(key))
             tiles.Add(key, tile);
     }
+
     IEnumerator ResetAutomatico()
     {
         rondaActiva = false;
 
-        // Restaurar posibles rojos activos
         foreach (var tile in barraActual)
             tile.RestorePreviousState();
 
         barraActual.Clear();
 
         yield return new WaitForSeconds(0.2f);
-
         ResetAllTiles();
-
         yield return new WaitForSeconds(0.5f);
-
         StartNewRound();
     }
+
     public void RemoveBlueTile(TileController tile)
     {
         if (blueTiles.Contains(tile))
@@ -326,26 +320,26 @@ public class GameManager : MonoBehaviour
         if (blueTiles.Count <= 0)
         {
             Debug.Log("Ronda completada");
-
-            GenerateBlueTiles(5); // genera nuevos azules
+            GenerateBlueTiles(5);
         }
     }
+
     public bool BarraEstaEnFila(int filaTile)
     {
         int filaReal = filaActualBarra - direccionBarra;
 
-        // Ajuste por rebote en bordes
         if (filaActualBarra == 0 || filaActualBarra == gridSize - 1)
             filaReal = filaActualBarra;
 
         return filaReal == filaTile;
     }
+
     public void AgregarTileABarra(TileController tile)
     {
         if (!barraActual.Contains(tile))
             barraActual.Add(tile);
     }
-    // Método llamado desde el botón
+
     public void IniciarJuegoDesdeBoton()
     {
         if (botonInicioCanvas != null)
@@ -359,100 +353,67 @@ public class GameManager : MonoBehaviour
         yield return new WaitForSeconds(5f);
         StartCoroutine(StartGame());
     }
+
     void DetectarInputVR()
     {
-        InputDevice rightHand =
-            InputDevices.GetDeviceAtXRNode(XRNode.RightHand);
-
+        InputDevice rightHand = InputDevices.GetDeviceAtXRNode(XRNode.RightHand);
         bool triggerPressed;
 
-        if (rightHand.TryGetFeatureValue(CommonUsages.triggerButton,
-                out triggerPressed)
-            && triggerPressed)
+        if (rightHand.TryGetFeatureValue(CommonUsages.triggerButton, out triggerPressed) && triggerPressed)
         {
-            Ray ray = new Ray(
-                vrController.position,
-                vrController.forward);
-
+            Ray ray = new Ray(vrController.position, vrController.forward);
             RaycastHit hit;
 
             if (Physics.Raycast(ray, out hit, vrRayDistance))
             {
-                TileController tile =
-                    hit.collider.GetComponent<TileController>();
-
+                TileController tile = hit.collider.GetComponent<TileController>();
                 if (tile != null)
-                {
                     tile.ActivarDesdeClick();
-                }
             }
         }
     }
+
     public void VolverMenuGrid()
     {
-        // Ocultar Game Over
         if (canvasGameOver != null)
-        {
             canvasGameOver.SetActive(false);
-        }
 
-        // Mostrar selección de grid
         if (canvasSeleccionGrid != null)
-        {
             canvasSeleccionGrid.SetActive(true);
-        }
     }
+
     public void ReiniciarJuego()
     {
-        // Ocultar canvas Game Over
         if (canvasGameOver != null)
-        {
             canvasGameOver.SetActive(false);
-        }
 
-        // Reiniciar vidas
         vidas = 3;
         ActualizarTextoVidas();
-
-        // Reiniciar puntos
         puntos = 0;
-
-        // Limpiar tablero
         ResetAllTiles();
-
-        // Empezar partida
         IniciarJuegoDesdeBoton();
     }
+
     public void StopGame()
     {
         rondaActiva = false;
 
-        // Detener barra
         if (barraCoroutine != null)
         {
             StopCoroutine(barraCoroutine);
             barraCoroutine = null;
         }
 
-        // Limpiar barra visual
         foreach (var tile in barraActual)
-        {
             tile.RestorePreviousState();
-        }
 
         barraActual.Clear();
 
-        // Texto GAME OVER
         if (textoVidas != null)
-        {
             textoVidas.text = "GAME OVER";
-        }
 
-        // Mostrar canvas Game Over
         if (canvasGameOver != null)
-        {
             canvasGameOver.SetActive(true);
-        }
 
         Debug.Log("Juego detenido");
     }

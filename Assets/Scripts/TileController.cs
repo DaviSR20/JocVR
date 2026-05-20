@@ -5,7 +5,8 @@ using UnityEngine.XR.Interaction.Toolkit.Interactables;
 
 public class TileController : XRBaseInteractable
 {
-    private Material previousMaterial;
+    private Material previousMaterialPanel;
+    private Material previousMaterialQuad;
     private TileState previousState;
 
     public enum TileState
@@ -26,62 +27,53 @@ public class TileController : XRBaseInteractable
     [Header("ID del Tile")]
     public TokenID id;
 
-    [Header("Renderer del Panel")]
-    [SerializeField] private Renderer targetRenderer;
+    [Header("Renderers")]
+    [SerializeField] private Renderer panelRenderer;
+    [SerializeField] private Renderer quadRenderer;
 
     private GameManager gameManager;
     private bool playerDentro = false;
 
-    private Material currentMaterial;
+    private Material currentPanelMaterial;
+    private Material currentQuadMaterial;
     private TileState currentState = TileState.Apagado;
 
     public TileState CurrentState => currentState;
 
-    private Material originalMaterial;
-    private TileState originalState;
-
     private bool estaParpadeando = false;
     public bool EstaParpadeando => estaParpadeando;
-
-    private MaterialPropertyBlock propBlock;
-    private Color baseColor;
 
     public void Initialize(TokenID newID)
     {
         id = newID;
 
-        //Buscar el hijo llamado "panel"
-        if (targetRenderer == null)
+        if (panelRenderer == null)
         {
-            Transform panelTransform = transform.Find("panel");
+            Transform t = transform.Find("panel");
+            if (t != null) panelRenderer = t.GetComponent<Renderer>();
+            else Debug.LogError("No se encontró el hijo 'panel' en el prefab.");
+        }
 
-            if (panelTransform != null)
-                targetRenderer = panelTransform.GetComponent<Renderer>();
-            else
-                Debug.LogError("No se encontr  el hijo 'panel' en el prefab.");
+        if (quadRenderer == null)
+        {
+            Transform t = transform.Find("Quad");
+            if (t != null) quadRenderer = t.GetComponent<Renderer>();
+            else Debug.LogWarning("No se encontró el hijo 'Quad' en el prefab.");
         }
 
         gameManager = GameManager.Instance;
         gameManager?.RegisterTile(this);
-
-        if (targetRenderer != null)
-        {
-            originalMaterial = targetRenderer.material;
-            originalState = currentState;
-            propBlock = new MaterialPropertyBlock();
-            baseColor = targetRenderer.material.color;
-        }
     }
+
     protected override void OnSelectEntered(SelectEnterEventArgs args)
     {
         base.OnSelectEntered(args);
-
         ActivarDesdeClick();
     }
+
     private void OnTriggerEnter(Collider other)
     {
         if (playerDentro) return;
-
         playerDentro = true;
         ActivarTile();
     }
@@ -91,64 +83,77 @@ public class TileController : XRBaseInteractable
         playerDentro = false;
     }
 
-    public void ActivarDesdeClick()
-    {
-        ActivarTile();
-    }
+    public void ActivarDesdeClick() => ActivarTile();
 
     // ==========================
     // CAMBIO DE MATERIAL + ESTADO
     // ==========================
 
-    public void SetVisualMaterial(Material mat)
-    {
-        if (targetRenderer != null)
-            targetRenderer.material = mat;
-    }
-
-    public void SetMaterial(Material newMaterial, TileState newState)
+    public void SetMaterials(Material panelMat, Material quadMat, TileState newState)
     {
         if (currentState == TileState.Rojo && newState != TileState.Rojo)
             return;
 
-        currentMaterial = newMaterial;
-        currentState = newState;
-        UpdateRenderer();
+        currentPanelMaterial = panelMat;
+        currentQuadMaterial  = quadMat;
+        currentState         = newState;
+        UpdateRenderers();
+    }
+
+    public void SetMaterial(Material newMaterial, TileState newState)
+    {
+        SetMaterials(newMaterial, newMaterial, newState);
+    }
+
+    public void ResetTile(Material panelMat, Material quadMat)
+    {
+        ForceSetMaterials(panelMat, quadMat, TileState.Apagado);
     }
 
     public void ResetTile(Material apagadoMaterial)
     {
-        ForceSetMaterial(apagadoMaterial, TileState.Apagado);
+        ResetTile(apagadoMaterial, apagadoMaterial);
     }
 
     public void SaveCurrentState()
     {
-        previousMaterial = currentMaterial;
-        previousState = currentState;
+        previousMaterialPanel = currentPanelMaterial;
+        previousMaterialQuad  = currentQuadMaterial;
+        previousState         = currentState;
     }
 
     public void RestorePreviousState()
     {
-        if (previousMaterial != null)
+        if (previousMaterialPanel != null)
         {
-            currentMaterial = previousMaterial;
-            currentState = previousState;
-            UpdateRenderer();
+            currentPanelMaterial = previousMaterialPanel;
+            currentQuadMaterial  = previousMaterialQuad;
+            currentState         = previousState;
+            UpdateRenderers();
         }
     }
 
-    private void UpdateRenderer()
+    public void ForceSetMaterials(Material panelMat, Material quadMat, TileState newState)
     {
-        if (targetRenderer != null && currentMaterial != null)
-            targetRenderer.material = currentMaterial;
+        SaveCurrentState();
+        currentPanelMaterial = panelMat;
+        currentQuadMaterial  = quadMat;
+        currentState         = newState;
+        UpdateRenderers();
     }
 
     public void ForceSetMaterial(Material newMaterial, TileState newState)
     {
-        SaveCurrentState();
-        currentMaterial = newMaterial;
-        currentState = newState;
-        UpdateRenderer();
+        ForceSetMaterials(newMaterial, newMaterial, newState);
+    }
+
+    private void UpdateRenderers()
+    {
+        if (panelRenderer != null && currentPanelMaterial != null)
+            panelRenderer.material = new Material(currentPanelMaterial);
+
+        if (quadRenderer != null && currentQuadMaterial != null)
+            quadRenderer.material = new Material(currentQuadMaterial);
     }
 
     private void ActivarTile()
@@ -172,45 +177,54 @@ public class TileController : XRBaseInteractable
 
     public void ApplyOverlayColor(Color color)
     {
-        if (targetRenderer == null) return;
-        targetRenderer.material.color = color;
+        if (panelRenderer != null) panelRenderer.material.color = color;
+        if (quadRenderer  != null) quadRenderer.material.color  = color;
     }
 
     public void RestoreBaseColor()
     {
-        if (targetRenderer == null) return;
+        if (currentPanelMaterial != null && panelRenderer != null)
+            panelRenderer.material.color = currentPanelMaterial.color;
 
-        if (currentMaterial != null)
-            targetRenderer.material.color = currentMaterial.color;
+        if (currentQuadMaterial != null && quadRenderer != null)
+            quadRenderer.material.color = currentQuadMaterial.color;
+    }
+
+    public void ParpadearAlPisar(Material panelApagado, Material quadApagado, float duracion = 0.6f)
+    {
+        StartCoroutine(ParpadeoRutina(panelApagado, quadApagado, duracion));
     }
 
     public void ParpadearAlPisar(Material apagadoMat, float duracion = 0.6f)
     {
-        StartCoroutine(ParpadeoRutina(apagadoMat, duracion));
+        ParpadearAlPisar(apagadoMat, apagadoMat, duracion);
     }
 
-    private IEnumerator ParpadeoRutina(Material apagadoMat, float duracion)
+    private IEnumerator ParpadeoRutina(Material panelApagado, Material quadApagado, float duracion)
     {
-        if (targetRenderer == null || currentMaterial == null)
+        if (panelRenderer == null || currentPanelMaterial == null)
             yield break;
 
-        float intervalo = 0.1f;
-        float tiempo = 0f;
-
-        Material materialOriginal = currentMaterial;
+        float    intervalo     = 0.1f;
+        float    tiempo        = 0f;
+        Material panelOriginal = currentPanelMaterial;
+        Material quadOriginal  = currentQuadMaterial;
 
         while (tiempo < duracion)
         {
-            targetRenderer.material = apagadoMat;
+            if (panelRenderer != null) panelRenderer.material = panelApagado;
+            if (quadRenderer  != null) quadRenderer.material  = quadApagado;
             yield return new WaitForSeconds(intervalo);
 
-            targetRenderer.material = materialOriginal;
+            if (panelRenderer != null) panelRenderer.material = panelOriginal;
+            if (quadRenderer  != null) quadRenderer.material  = quadOriginal;
             yield return new WaitForSeconds(intervalo);
 
             tiempo += intervalo * 2;
         }
 
-        targetRenderer.material = materialOriginal;
+        if (panelRenderer != null) panelRenderer.material = panelOriginal;
+        if (quadRenderer  != null) quadRenderer.material  = quadOriginal;
     }
 
     private IEnumerator ParpadeoYDesactivar()
@@ -220,9 +234,13 @@ public class TileController : XRBaseInteractable
         gameManager.AddPunto();
         Debug.Log($"Tile {id} azul: +1 punto");
 
-        yield return StartCoroutine(ParpadeoRutina(gameManager.Apagat, 0.6f));
+        yield return StartCoroutine(ParpadeoRutina(
+            gameManager.ApagadoPanelMat,
+            gameManager.ApagadoQuadMat,
+            0.6f
+        ));
 
-        ForceSetMaterial(gameManager.Apagat, TileState.Apagado);
+        ForceSetMaterials(gameManager.ApagadoPanelMat, gameManager.ApagadoQuadMat, TileState.Apagado);
         gameManager.RemoveBlueTile(this);
 
         estaParpadeando = false;

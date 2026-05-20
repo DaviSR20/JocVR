@@ -79,7 +79,8 @@ public class GridPreviewManager : MonoBehaviour
     void HandleEditActions()
     {
         Vector2 input = OVRInput.Get(OVRInput.Axis2D.PrimaryThumbstick, OVRInput.Controller.RTouch);
-        bool isTriggerHeld = OVRInput.Get(OVRInput.Button.PrimaryIndexTrigger, OVRInput.Controller.RTouch);
+        float triggerValue = OVRInput.Get(OVRInput.RawAxis1D.RIndexTrigger);
+        bool isTriggerHeld = triggerValue > 0.1f;
 
         // --- LÓGICA DE HAPTIC FEEDBACK ---
         // Si acaba de pulsar el gatillo (Entra en Modo Escala)
